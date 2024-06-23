@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">UWB Indoor Positioning</string>
+    <string name="uwb_responder">UWB Responder</string>
+    <string name="uwb_anchor">UWB Anchor</string>
+    <string name="go_back">Go back</string>
+    <string name="light_mode">Light Mode</string>
+    <string name="choose_role">I would like to use this device as a</string>
 </resources>

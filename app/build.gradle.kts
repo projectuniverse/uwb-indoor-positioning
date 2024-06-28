@@ -73,8 +73,10 @@ dependencies {
     // Hilt (dependency injection)
     implementation("com.google.dagger:hilt-android:2.51.1")
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
-    // To use viewModel() for dependency injection
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    // Hilt integration with Navigation Compose library
+    implementation(libs.androidx.hilt.navigation.compose)
+    // To use rememberDrawablePainter() for the connection animation
+    implementation(libs.accompanist.drawablepainter)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

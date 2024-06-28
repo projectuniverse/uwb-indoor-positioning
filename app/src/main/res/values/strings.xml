@@ -7,4 +7,15 @@
     <string name="dark_mode">Dark Mode</string>
     <string name="auto_mode">Auto Mode</string>
     <string name="choose_role">I would like to use this device as a</string>
+    <string name="no_uwb_support">Unfortunately, your device cannot run this app, because it does not support Ultra Wideband</string>
+    <string name="uwb_off">This app requires Ultra Wideband to be turned on</string>
+    <string name="go_to_settings">Go to settings</string>
+    <string name="input_coordinates">Please input this anchor\'s coordinates with exactly 7 decimal places</string>
+    <string name="start">Start</string>
+    <string name="invalid_inputs">Your inputs are invalid</string>
+    <string name="anchors_latitude">Anchor\'s latitude</string>
+    <string name="anchors_longitude">Anchor\'s longitude</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
+    <string name="searching_for_devices">Searching for devices and establishing connections</string>
 </resources>

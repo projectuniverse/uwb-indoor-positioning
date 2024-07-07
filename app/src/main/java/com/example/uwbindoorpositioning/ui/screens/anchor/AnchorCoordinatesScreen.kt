@@ -14,7 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.rounded.Lightbulb
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -162,7 +162,7 @@ fun InvalidInputHint(
             modifier = Modifier.fillMaxSize()
         ) {
             Icon(
-                imageVector = Icons.Filled.Lightbulb,
+                imageVector = Icons.Rounded.Lightbulb,
                 contentDescription = null,
                 modifier = Modifier.size(22.dp)
             )

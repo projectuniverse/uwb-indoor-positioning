@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+    // For the Maps API key
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
@@ -39,6 +41,8 @@ android {
         jvmTarget = "1.8"
         // Added to be able to use a TopAppBar
         freeCompilerArgs += "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api"
+        // Added to be able to use rememberPagerState
+        freeCompilerArgs += "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi"
     }
     buildFeatures {
         compose = true
@@ -77,6 +81,12 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     // To use rememberDrawablePainter() for the connection animation
     implementation(libs.accompanist.drawablepainter)
+    // Google Maps Compose library
+    implementation("com.google.maps.android:maps-compose:4.4.1")
+    // Google Maps Compose utility library
+    implementation("com.google.maps.android:maps-compose-utils:4.4.1")
+    // Google Maps Compose widgets library
+    implementation("com.google.maps.android:maps-compose-widgets:4.4.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -90,3 +100,14 @@ dependencies {
 kapt {
     correctErrorTypes = true
 }
+
+secrets {
+    // Optionally specify a different file name containing your secrets.
+    // The plugin defaults to "local.properties"
+    propertiesFileName = "secrets.properties"
+
+    // A properties file containing default secret values. This file can be
+    // checked in version control.
+    defaultPropertiesFileName = "local.defaults.properties"
+}
+

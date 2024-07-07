@@ -1,0 +1,7 @@
+<!--Rounded Material Symbol "arrow upward alt", 400 weight, 0 grade, 48 dp optical size, 300 dp size-->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:height="300dp" android:viewportHeight="960" android:viewportWidth="960" android:width="300dp">
+      
+    <path android:fillColor="#000000" android:pathData="M452,316 L303,462q-9,9 -21,8.5t-21,-9.5q-9,-9 -9,-21t9,-21l199,-199q9,-9 21,-9t21,9l199,199q9,9 9,21t-9,21q-9,9 -21,9t-21,-9L512,314v372q0,13 -8.5,21.5T482,716q-13,0 -21.5,-8.5T452,686v-370Z"/>
+    
+</vector>

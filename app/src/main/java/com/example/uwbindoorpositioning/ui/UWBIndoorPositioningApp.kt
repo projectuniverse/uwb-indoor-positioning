@@ -1,16 +1,17 @@
 package com.example.uwbindoorpositioning.ui
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.LightMode
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.DarkMode
+import androidx.compose.material.icons.rounded.LightMode
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +38,7 @@ import com.example.uwbindoorpositioning.ui.screens.anchor.AnchorCoordinatesScree
 import com.example.uwbindoorpositioning.ui.screens.anchor.AnchorSearchScreen
 import com.example.uwbindoorpositioning.ui.screens.anchor.AnchorViewModel
 import com.example.uwbindoorpositioning.ui.screens.responder.ResponderScreen
+import com.example.uwbindoorpositioning.ui.screens.responder.ResponderViewModel
 import com.example.uwbindoorpositioning.ui.screens.start.StartScreen
 import com.example.uwbindoorpositioning.ui.screens.troubleshooting.UWBIncapableScreen
 import com.example.uwbindoorpositioning.ui.screens.troubleshooting.UWBOffScreen
@@ -68,7 +70,7 @@ fun AppBar(
             if (canNavigateBack) {
                 IconButton(onClick = navigateUp) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                         contentDescription = stringResource(R.string.go_back)
                     )
                 }
@@ -86,9 +88,9 @@ fun AppBar(
             ) {
                 Icon(
                     imageVector = when (selectedTheme) {
-                        AppTheme.MODE_AUTO -> Icons.Filled.Settings
-                        AppTheme.MODE_DAY -> Icons.Filled.LightMode
-                        AppTheme.MODE_NIGHT -> Icons.Filled.DarkMode
+                        AppTheme.MODE_AUTO -> Icons.Rounded.Settings
+                        AppTheme.MODE_DAY -> Icons.Rounded.LightMode
+                        AppTheme.MODE_NIGHT -> Icons.Rounded.DarkMode
                     },
                     contentDescription = null,
                     modifier = Modifier.size(22.dp)
@@ -109,6 +111,11 @@ fun UWBIndoorPositioningApp(
     setAppTheme: (AppTheme) -> Unit,
     navController: NavHostController = rememberNavController()
 ) {
+    val isDark = when (selectedTheme) {
+        AppTheme.MODE_AUTO -> isSystemInDarkTheme()
+        AppTheme.MODE_DAY -> false
+        AppTheme.MODE_NIGHT -> true
+    }
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentScreen = Screen.valueOf(
         backStackEntry?.destination?.route ?: Screen.Start.name
@@ -141,8 +148,10 @@ fun UWBIndoorPositioningApp(
                 )
             }
             composable(route = Screen.Responder.name) {
+                val viewModel = hiltViewModel<ResponderViewModel>()
                 ResponderScreen(
-                    // TODO Add button onClicks (do I need to declare this here for maps and going to settings?)
+                    isDark = isDark,
+                    viewModel = viewModel,
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -178,14 +187,16 @@ fun UWBIndoorPositioningApp(
             }
             composable(route = Screen.UWBIncapable.name) {
                 UWBIncapableScreen(
+                    isDark = isDark,
                     modifier = Modifier.fillMaxSize()
                 )
             }
             composable(route = Screen.UWBOff.name) {
                 val viewModel = hiltViewModel<UWBOffViewModel>()
                 UWBOffScreen(
-                    modifier = Modifier.fillMaxSize(),
-                    viewModel = viewModel
+                    isDark = isDark,
+                    viewModel = viewModel,
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }

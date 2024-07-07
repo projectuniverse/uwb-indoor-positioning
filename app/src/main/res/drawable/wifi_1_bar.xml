@@ -1,0 +1,7 @@
+<!--Rounded Material Symbol "rounded wifi 1 bar", 100 dp size-->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:height="100dp" android:tint="#428DF7" android:viewportHeight="960" android:viewportWidth="960" android:width="100dp">
+      
+    <path android:fillColor="@android:color/white" android:pathData="M480,840Q438,840 409,811Q380,782 380,740Q380,698 409,669Q438,640 480,640Q522,640 551,669Q580,698 580,740Q580,782 551,811Q522,840 480,840Z"/>
+    
+</vector>

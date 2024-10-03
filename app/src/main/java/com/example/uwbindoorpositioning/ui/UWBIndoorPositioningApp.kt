@@ -2,26 +2,15 @@ package com.example.uwbindoorpositioning.ui
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.LightMode
 import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -30,28 +19,27 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.uwbindoorpositioning.R
 import com.example.uwbindoorpositioning.data.AppTheme
 import com.example.uwbindoorpositioning.ui.screens.anchor.AnchorCoordinatesScreen
+import com.example.uwbindoorpositioning.ui.screens.anchor.AnchorCoordinatesViewModel
 import com.example.uwbindoorpositioning.ui.screens.anchor.AnchorSearchScreen
-import com.example.uwbindoorpositioning.ui.screens.anchor.AnchorViewModel
+import com.example.uwbindoorpositioning.ui.screens.anchor.AnchorSearchViewModel
 import com.example.uwbindoorpositioning.ui.screens.responder.ResponderScreen
 import com.example.uwbindoorpositioning.ui.screens.responder.ResponderViewModel
 import com.example.uwbindoorpositioning.ui.screens.start.StartScreen
+import com.example.uwbindoorpositioning.ui.screens.troubleshooting.PermissionsNotGrantedScreen
+import com.example.uwbindoorpositioning.ui.screens.troubleshooting.PermissionsNotGrantedViewModel
 import com.example.uwbindoorpositioning.ui.screens.troubleshooting.UWBIncapableScreen
-import com.example.uwbindoorpositioning.ui.screens.troubleshooting.UWBOffScreen
-import com.example.uwbindoorpositioning.ui.screens.troubleshooting.UWBOffViewModel
+import kotlinx.serialization.Serializable
 
 // Enum class that defines the screens for the Navhost
 enum class Screen(@StringRes val title: Int) {
     Start(title = R.string.app_name),
     Responder(title = R.string.uwb_responder),
-    AnchorCoordinates(title = R.string.uwb_anchor),
-    AnchorSearch(title = R.string.uwb_anchor),
-    UWBIncapable(title = R.string.app_name),
-    UWBOff(title = R.string.app_name),
+    Anchor(title = R.string.uwb_anchor),
 }
 
 @Composable
@@ -107,6 +95,8 @@ fun AppBar(
 
 @Composable
 fun UWBIndoorPositioningApp(
+    isDeviceUWBCapable: Boolean,
+    arePermissionsGranted: Boolean,
     selectedTheme: AppTheme,
     setAppTheme: (AppTheme) -> Unit,
     navController: NavHostController = rememberNavController()
@@ -116,10 +106,22 @@ fun UWBIndoorPositioningApp(
         AppTheme.MODE_DAY -> false
         AppTheme.MODE_NIGHT -> true
     }
+    val startScreenRoute = StartScreen::class.qualifiedName.orEmpty()
+    val responderScreenRoute = ResponderScreen::class.qualifiedName.orEmpty()
+    // TODO name might need to be updated if screen does end up taking arguments
+    val anchorCoordinatesScreenRoute = AnchorCoordinatesScreen::class.qualifiedName.orEmpty()
+    val anchorSearchScreenRouteWithNoArguments = AnchorSearchScreen::class.qualifiedName.orEmpty()
     val backStackEntry by navController.currentBackStackEntryAsState()
-    val currentScreen = Screen.valueOf(
-        backStackEntry?.destination?.route ?: Screen.Start.name
-    )
+    val currentRoute = backStackEntry?.destination?.route ?: startScreenRoute
+    val currentScreen =
+        if (responderScreenRoute.isNotEmpty() && currentRoute.contains(responderScreenRoute)) {
+            Screen.valueOf(Screen.Responder.name)
+        } else if ((anchorCoordinatesScreenRoute.isNotEmpty() && currentRoute.contains(anchorCoordinatesScreenRoute)) ||
+                    (anchorSearchScreenRouteWithNoArguments.isNotEmpty() && currentRoute.contains(anchorSearchScreenRouteWithNoArguments))) {
+            Screen.valueOf(Screen.Anchor.name)
+        } else {
+            Screen.valueOf(Screen.Start.name)
+        }
 
     Scaffold(
         topBar = {
@@ -133,72 +135,94 @@ fun UWBIndoorPositioningApp(
             )
         }
     ) { innerPadding ->
-        // TODO Should I use innerpadding so that I don't have to set a padding for each screen manually?
         // This is where the app's content will be displayed and switched
-        NavHost(
-            navController = navController,
-            startDestination = Screen.Start.name,
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable(route = Screen.Start.name) {
-                StartScreen(
-                    onUWBResponderButtonClicked = { navController.navigate(route = Screen.Responder.name) },
-                    onUWBAnchorButtonClicked = { navController.navigate(route = "Anchor") },
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-            composable(route = Screen.Responder.name) {
-                val viewModel = hiltViewModel<ResponderViewModel>()
-                ResponderScreen(
-                    isDark = isDark,
-                    viewModel = viewModel,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-            /*
-             * Use navigation to retrieve same instance of AnchorViewModel across multiple anchor
-             * screens, scoped to navigation routes.
-             */
-            navigation(
-                route = "Anchor", // Route to this nested graph within the main graph
-                startDestination = Screen.AnchorCoordinates.name // First screen in this graph
+        // TODO Should I use innerpadding so that I don't have to set a padding for each screen manually?
+        if (!isDeviceUWBCapable) {
+            UWBIncapableScreen(
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        else if (!arePermissionsGranted) {
+            val viewModel = hiltViewModel<PermissionsNotGrantedViewModel>()
+            PermissionsNotGrantedScreen(
+                viewModel = viewModel,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        else {
+            NavHost(
+                navController = navController,
+                startDestination = StartScreen,
+                modifier = Modifier.padding(innerPadding)
             ) {
-                composable(route = Screen.AnchorCoordinates.name) { backStackEntry ->
-                    val parentEntry = remember(backStackEntry) {
-                        navController.getBackStackEntry("Anchor")
-                    }
-                    val parentViewModel = hiltViewModel<AnchorViewModel>(parentEntry)
+                composable<StartScreen> {
+                    StartScreen(
+                        onUWBResponderButtonClicked = { navController.navigate(ResponderScreen) },
+                        onUWBAnchorButtonClicked = { navController.navigate(AnchorCoordinatesScreen) },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+                composable<ResponderScreen> {
+                    val viewModel = hiltViewModel<ResponderViewModel>()
+                    ResponderScreen(
+                        isDark = isDark,
+                        viewModel = viewModel,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+                composable<AnchorCoordinatesScreen> {
+                    val viewModel = hiltViewModel<AnchorCoordinatesViewModel>()
                     AnchorCoordinatesScreen(
-                        onStartButtonClicked = { navController.navigate(route = Screen.AnchorSearch.name) },
-                        modifier = Modifier.fillMaxSize(),
-                        viewModel = parentViewModel
+                        onStartButtonClicked = { anchorLatitude, anchorLongitude, anchorCompassBearing ->
+                            navController.navigate(
+                                AnchorSearchScreen(
+                                    anchorLatitude = anchorLatitude,
+                                    anchorLongitude = anchorLongitude,
+                                    anchorCompassBearing = anchorCompassBearing
+                                )
+                            )
+                        },
+                        viewModel = viewModel,
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
-                composable(route = Screen.AnchorSearch.name) { backStackEntry ->
-                    val parentEntry = remember(backStackEntry) {
-                        navController.getBackStackEntry("Anchor")
-                    }
-                    val parentViewModel = hiltViewModel<AnchorViewModel>(parentEntry)
+                // Use navigation arguments to pass anchor latitude, longitude and compass bearing between screens
+                composable<AnchorSearchScreen> { backStackEntry ->
+                    val args = backStackEntry.toRoute<AnchorSearchScreen>()
+                    val anchorLatitude = args.anchorLatitude
+                    val anchorLongitude = args.anchorLongitude
+                    val anchorCompassBearing = args.anchorCompassBearing
+                    val viewModel = hiltViewModel<AnchorSearchViewModel, AnchorSearchViewModel.Factory>(
+                        creationCallback = { factory ->
+                            factory.create(
+                                anchorLatitude = anchorLatitude,
+                                anchorLongitude = anchorLongitude,
+                                anchorCompassBearing = anchorCompassBearing
+                            )
+                        }
+                    )
                     AnchorSearchScreen(
-                        modifier = Modifier.fillMaxSize(),
-                        viewModel = parentViewModel
+                        viewModel = viewModel,
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
-            }
-            composable(route = Screen.UWBIncapable.name) {
-                UWBIncapableScreen(
-                    isDark = isDark,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-            composable(route = Screen.UWBOff.name) {
-                val viewModel = hiltViewModel<UWBOffViewModel>()
-                UWBOffScreen(
-                    isDark = isDark,
-                    viewModel = viewModel,
-                    modifier = Modifier.fillMaxSize()
-                )
             }
         }
     }
 }
+
+@Serializable
+object StartScreen
+
+@Serializable
+object ResponderScreen
+
+@Serializable
+object AnchorCoordinatesScreen
+
+@Serializable
+data class AnchorSearchScreen(
+    val anchorLatitude: String,
+    val anchorLongitude: String,
+    val anchorCompassBearing: String
+)

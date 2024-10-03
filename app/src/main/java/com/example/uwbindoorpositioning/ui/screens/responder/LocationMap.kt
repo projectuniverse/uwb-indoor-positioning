@@ -3,41 +3,36 @@ package com.example.uwbindoorpositioning.ui.screens.responder
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.uwbindoorpositioning.R
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.*
 
 @Composable
 fun LocationMap(
-    gpsLocation: LatLng,
     preciseLocation: LatLng
 ) {
-    var isMapLoaded by remember { mutableStateOf(false) } // TODO do I need this?
-    val bounds = createBounds(gpsLocation, preciseLocation)
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(bounds.center, 20f)
+        position = CameraPosition.fromLatLngZoom(preciseLocation, 21f)
     }
-
     GoogleMap(
         modifier = Modifier
-            .width(300.dp)
-            .height(300.dp),
-        onMapLoaded = { isMapLoaded = true },
+            .width(350.dp)
+            .height(400.dp),
+        properties = MapProperties(
+            mapType = MapType.SATELLITE,
+            isMyLocationEnabled = true
+        ),
         cameraPositionState = cameraPositionState
-    )
-}
-
-private fun createBounds(gpsLocation: LatLng, preciseLocation: LatLng): LatLngBounds {
-    val boundsBuilder = LatLngBounds.builder()
-    boundsBuilder.include(gpsLocation)
-    boundsBuilder.include(preciseLocation)
-    return boundsBuilder.build()
+    ) {
+        Marker(
+            state = MarkerState(position = preciseLocation),
+            title = stringResource(R.string.marker_title),
+            snippet = stringResource(R.string.marker_body),
+            draggable = false
+        )
+    }
 }

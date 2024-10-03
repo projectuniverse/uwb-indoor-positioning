@@ -1,29 +1,13 @@
 package com.example.uwbindoorpositioning.ui.screens.anchor
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Lightbulb
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -31,14 +15,27 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.uwbindoorpositioning.R
 
 @Composable
 fun AnchorCoordinatesScreen(
-    onStartButtonClicked: () -> Unit,
+    onStartButtonClicked: (anchorLatitude: String, anchorLongitude: String, anchorCompassBearing: String) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: AnchorViewModel
+    viewModel: AnchorCoordinatesViewModel
 ) {
+    // Input state
+    val anchorLatitudeInputState = viewModel.anchorLatitudeInputState.collectAsStateWithLifecycle()
+    val anchorLongitudeInputState = viewModel.anchorLongitudeInputState.collectAsStateWithLifecycle()
+    val anchorCompassBearingInputState = viewModel.anchorCompassBearingInputState.collectAsStateWithLifecycle()
+    val areSubmittedInputsValidState = viewModel.areSubmittedInputsValidState.collectAsStateWithLifecycle()
+
+    // State variables
+    val anchorLatitudeInput = anchorLatitudeInputState.value
+    val anchorLongitudeInput = anchorLongitudeInputState.value
+    val anchorCompassBearingInput = anchorCompassBearingInputState.value
+    val areSubmittedInputsValid = areSubmittedInputsValidState.value
+
     Column(
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -46,11 +43,7 @@ fun AnchorCoordinatesScreen(
             .verticalScroll(rememberScrollState())
             .padding(20.dp)
     ) {
-        val latitudeInputState = viewModel.latitudeInputState.collectAsState()
-        val longitudeInputState = viewModel.longitudeInputState.collectAsState()
-        val invalidInputsSubmittedState = viewModel.invalidInputsSubmittedState.collectAsState()
-
-        if (invalidInputsSubmittedState.value) {
+        if (!areSubmittedInputsValid) {
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.Top,
@@ -82,28 +75,38 @@ fun AnchorCoordinatesScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = stringResource(R.string.input_coordinates),
+                text = stringResource(R.string.input_position),
                 style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.width(300.dp)
             )
             Spacer(modifier = Modifier.height(40.dp))
-            InputCoordinateField(
-                value = latitudeInputState.value,
-                onValueChange = { it -> viewModel.updateLatitudeInput(it) },
-                label = stringResource(R.string.latitude)
+            InputPositionField(
+                value = anchorLatitudeInput,
+                onValueChange = { it -> viewModel.updateAnchorLatitudeInput(it) },
+                label = stringResource(R.string.latitude_7_decimal_places)
             )
             Spacer(modifier = Modifier.height(40.dp))
-            InputCoordinateField(
-                value = longitudeInputState.value,
-                onValueChange = { it -> viewModel.updateLongitudeInput(it) },
-                label = stringResource(R.string.longitude)
+            InputPositionField(
+                value = anchorLongitudeInput,
+                onValueChange = { it -> viewModel.updateAnchorLongitudeInput(it) },
+                label = stringResource(R.string.longitude_7_decimal_places)
+            )
+            Spacer(modifier = Modifier.height(40.dp))
+            InputPositionField(
+                value = anchorCompassBearingInput,
+                onValueChange = { it -> viewModel.updateAnchorCompassBearingInput(it) },
+                label = stringResource(R.string.compass_bearing_0_359)
             )
             Spacer(modifier = Modifier.height(60.dp))
             Button(
                 onClick = {
-                    if (viewModel.userEnteredValidCoordinates()) {
-                        onStartButtonClicked()
+                    if (viewModel.didUserEnterValidInputs()) {
+                        onStartButtonClicked(
+                            anchorLatitudeInput,
+                            anchorLongitudeInput,
+                            anchorCompassBearingInput
+                        )
                     }
                 },
                 modifier = Modifier
@@ -121,6 +124,7 @@ fun AnchorCoordinatesScreen(
          * message is at top, without covering the input fields. This works due to the
          * nature of verticalArrangement = Arrangement.SpaceBetween.
          */
+        // TODO redo? Work with 1f or something like that
         Spacer(modifier = Modifier
             .fillMaxWidth()
             .height(140.dp)
@@ -129,7 +133,7 @@ fun AnchorCoordinatesScreen(
 }
 
 @Composable
-private fun InputCoordinateField(
+private fun InputPositionField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,

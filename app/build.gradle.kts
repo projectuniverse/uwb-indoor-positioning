@@ -1,20 +1,23 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    id("kotlin-kapt")
-    id("com.google.dagger.hilt.android")
+    // Hilt
+    alias(libs.plugins.jetbrains.kotlin.kapt)
+    alias(libs.plugins.google.dagger.hilt.android)
+    // Kotlin Serialization
+    alias(libs.plugins.jetbrains.kotlin.plugin.serialization)
     // For the Maps API key
-    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
 }
 
 android {
     namespace = "com.example.uwbindoorpositioning"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.uwbindoorpositioning"
         minSdk = 31
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -75,18 +78,24 @@ dependencies {
     // Preferences DataStore (to toggle dark mode/light mode)
     implementation(libs.androidx.datastore.preferences)
     // Hilt (dependency injection)
-    implementation("com.google.dagger:hilt-android:2.51.1")
-    kapt("com.google.dagger:hilt-android-compiler:2.51.1")
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
     // Hilt integration with Navigation Compose library
     implementation(libs.androidx.hilt.navigation.compose)
     // To use rememberDrawablePainter() for the connection animation
     implementation(libs.accompanist.drawablepainter)
     // Google Maps Compose library
-    implementation("com.google.maps.android:maps-compose:4.4.1")
+    implementation(libs.maps.compose)
     // Google Maps Compose utility library
-    implementation("com.google.maps.android:maps-compose-utils:4.4.1")
+    implementation(libs.maps.compose.utils)
     // Google Maps Compose widgets library
-    implementation("com.google.maps.android:maps-compose-widgets:4.4.1")
+    implementation(libs.maps.compose.widgets)
+    // Nearby Connections
+    implementation(libs.play.services.nearby)
+    // UWB API
+    implementation(libs.androidx.uwb)
+    // JSON Serialization
+    implementation(libs.kotlinx.serialization.json)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

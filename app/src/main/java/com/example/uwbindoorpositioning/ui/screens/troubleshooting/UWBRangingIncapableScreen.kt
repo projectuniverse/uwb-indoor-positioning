@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.sp
 import com.example.uwbindoorpositioning.R
 
 @Composable
-fun UWBIncapableScreen(
+fun UWBRangingIncapableScreen(
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -35,7 +35,7 @@ fun UWBIncapableScreen(
         )
         Spacer(modifier = Modifier.height(40.dp))
         Text(
-            text = stringResource(R.string.no_uwb_support),
+            text = stringResource(R.string.device_does_not_support_uwb_ranging),
             style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
             textAlign = TextAlign.Center,
             modifier = Modifier.width(300.dp)

@@ -1,11 +1,8 @@
-package com.example.uwbindoorpositioning.ui.screens.troubleshooting
+package com.example.uwbindoorpositioning.ui.screens.responder
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ErrorOutline
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,12 +11,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.uwbindoorpositioning.R
+import com.example.uwbindoorpositioning.ui.screens.components.ConnectionAnimation
 
 @Composable
-fun UWBIncapableScreen(
-    modifier: Modifier = Modifier
+fun ResponderSearchScreen(
+    modifier: Modifier = Modifier,
+    viewModel: ResponderViewModel
 ) {
     Column(
         verticalArrangement = Arrangement.Center,
@@ -28,15 +26,11 @@ fun UWBIncapableScreen(
             .verticalScroll(rememberScrollState())
             .padding(20.dp)
     ) {
-        Icon(
-            imageVector = Icons.Rounded.ErrorOutline,
-            contentDescription = null,
-            modifier = Modifier.size(100.dp)
-        )
-        Spacer(modifier = Modifier.height(40.dp))
+        ConnectionAnimation(viewModel.context)
+        Spacer(modifier = Modifier.height(60.dp))
         Text(
-            text = stringResource(R.string.no_uwb_support),
-            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+            text = stringResource(R.string.searching_for_devices),
+            style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center,
             modifier = Modifier.width(300.dp)
         )

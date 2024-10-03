@@ -2,12 +2,18 @@
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.jetbrains.kotlin.android) apply false
-    id("com.google.dagger.hilt.android") version "2.51.1" apply false
+    // Hilt
+    alias(libs.plugins.jetbrains.kotlin.kapt) apply false
+    alias(libs.plugins.google.dagger.hilt.android) apply false
+    // Kotlin Serialization
+    alias(libs.plugins.jetbrains.kotlin.plugin.serialization) apply false
+    // For the Maps API key
+    alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin) apply false
 }
 
 buildscript {
     dependencies {
         // For the Maps API key
-        classpath("com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin:2.0.1")
+        classpath(libs.secrets.gradle.plugin)
     }
 }

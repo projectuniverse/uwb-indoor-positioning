@@ -11,7 +11,7 @@ import javax.inject.Inject
 import kotlin.text.Charsets.UTF_8
 
 class AnchorNearbyConnector @Inject constructor(
-    @ApplicationContext val context: Context
+    @ApplicationContext private val context: Context
 ) {
     /*
      * Strategy for telling the Nearby Connections API how we want to discover and connect to
@@ -53,7 +53,7 @@ class AnchorNearbyConnector @Inject constructor(
                  * the responder loses the UWB connection to the anchor and wants to reconnect. The responder
                  * can only reconnect if it is not already connected to the anchor via nearby connections.
                  */
-                connectionsClient.disconnectFromEndpoint(endpointId)
+                connectionsClient.stopAllEndpoints()
                 onNearbyConnectionEstablished(responderNearbyPayload)
             }
         }

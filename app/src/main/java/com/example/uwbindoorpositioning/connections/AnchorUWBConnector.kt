@@ -14,7 +14,7 @@ import javax.inject.Inject
 import kotlin.random.Random
 
 class AnchorUWBConnector @Inject constructor(
-    @ApplicationContext val context: Context
+    @ApplicationContext private val context: Context
 ) {
     private val uwbManager = UwbManager.createInstance(context)
 

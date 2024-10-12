@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PermissionsNotGrantedViewModel @Inject constructor(
-    @ApplicationContext val context: Context
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     fun openAppSettings() {

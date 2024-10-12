@@ -19,7 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
-    @ApplicationContext val context: Context,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
     // Preferences are accessible as a flow
     val userPreferencesFlow = userPreferencesRepository.userPreferencesFlow

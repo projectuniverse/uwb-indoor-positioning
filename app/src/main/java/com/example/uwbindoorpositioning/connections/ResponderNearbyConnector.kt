@@ -13,7 +13,7 @@ import javax.inject.Inject
 import kotlin.text.Charsets.UTF_8
 
 class ResponderNearbyConnector @Inject constructor(
-    @ApplicationContext val context: Context
+    @ApplicationContext private val context: Context
 ) {
     /*
      * Strategy for telling the Nearby Connections API how we want to discover and connect to

@@ -108,16 +108,15 @@ fun UWBIndoorPositioningApp(
     }
     val startScreenRoute = StartScreen::class.qualifiedName.orEmpty()
     val responderScreenRoute = ResponderScreen::class.qualifiedName.orEmpty()
-    // TODO name might need to be updated if screen does end up taking arguments
     val anchorCoordinatesScreenRoute = AnchorCoordinatesScreen::class.qualifiedName.orEmpty()
-    val anchorSearchScreenRouteWithNoArguments = AnchorSearchScreen::class.qualifiedName.orEmpty()
+    val anchorSearchScreenRoute = AnchorSearchScreen::class.qualifiedName.orEmpty()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route ?: startScreenRoute
     val currentScreen =
         if (responderScreenRoute.isNotEmpty() && currentRoute.contains(responderScreenRoute)) {
             Screen.valueOf(Screen.Responder.name)
         } else if ((anchorCoordinatesScreenRoute.isNotEmpty() && currentRoute.contains(anchorCoordinatesScreenRoute)) ||
-                    (anchorSearchScreenRouteWithNoArguments.isNotEmpty() && currentRoute.contains(anchorSearchScreenRouteWithNoArguments))) {
+                    (anchorSearchScreenRoute.isNotEmpty() && currentRoute.contains(anchorSearchScreenRoute))) {
             Screen.valueOf(Screen.Anchor.name)
         } else {
             Screen.valueOf(Screen.Start.name)

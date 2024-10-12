@@ -13,4 +13,3 @@ data class AnchorNearbyPayload(
     val anchorLongitude: Double,
     val anchorCompassBearing: Int
 )
-

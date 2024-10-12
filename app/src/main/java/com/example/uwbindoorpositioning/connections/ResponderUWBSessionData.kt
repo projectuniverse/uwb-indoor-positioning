@@ -8,5 +8,5 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class ResponderUWBSessionData(
-    val responderLocalAddress: ByteArray,
+    val responderLocalAddress: ByteArray
 )

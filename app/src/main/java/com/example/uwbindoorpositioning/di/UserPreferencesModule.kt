@@ -25,7 +25,6 @@ private val Context.dataStore by preferencesDataStore(
 @InstallIn(SingletonComponent::class)
 @Module
 abstract class UserPreferencesModule {
-
     @Binds
     @Singleton
     abstract fun bindUserPreferencesRepository(

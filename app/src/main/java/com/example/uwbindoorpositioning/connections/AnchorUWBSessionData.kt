@@ -12,5 +12,5 @@ data class AnchorUWBSessionData(
     val sessionId: Int,
     val sessionKeyInfo: ByteArray,
     val channel: Int,
-    val preambleIndex: Int,
+    val preambleIndex: Int
 )

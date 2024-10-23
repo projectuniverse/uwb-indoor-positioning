@@ -16,11 +16,7 @@ class ResponderConnectionManager @Inject constructor(
     val anchorLongitudeState = responderNearbyConnector.anchorLongitudeState
     val anchorCompassBearingState = responderNearbyConnector.anchorCompassBearingState
 
-    suspend fun doesDeviceSupportUWBRanging() : Boolean {
-        return responderUWBConnector.doesDeviceSupportUWBRanging()
-    }
-
-    suspend fun initializeUWBSession(): ResponderUWBSessionData {
+    suspend fun initializeUWBSession(): ResponderUWBSessionData? {
         return responderUWBConnector.initializeUWBSession()
     }
 

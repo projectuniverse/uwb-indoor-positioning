@@ -9,6 +9,7 @@ import androidx.core.uwb.UwbComplexChannel
 import androidx.core.uwb.UwbControleeSessionScope
 import androidx.core.uwb.UwbDevice
 import androidx.core.uwb.UwbManager
+import androidx.core.uwb.exceptions.UwbServiceNotAvailableException
 import com.google.android.gms.nearby.uwb.RangingParameters.SUB_SESSION_ID_UNSET
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -38,28 +39,25 @@ class ResponderUWBConnector @Inject constructor(
     val azimuthState = _azimuthState.asStateFlow()
     val elevationState = _elevationState.asStateFlow()
 
-    suspend fun doesDeviceSupportUWBRanging() : Boolean {
-        val controleeSessionScope = uwbManager.controleeSessionScope()
-        val isDistanceSupported = controleeSessionScope.rangingCapabilities.isDistanceSupported
-        val isAzimuthalAngleSupported = controleeSessionScope.rangingCapabilities.isAzimuthalAngleSupported
-        val isElevationAngleSupported = controleeSessionScope.rangingCapabilities.isElevationAngleSupported
-        return isDistanceSupported && isAzimuthalAngleSupported && isElevationAngleSupported
-    }
-
     /*
      * Initializes a new UWB session and returns the responder's relevant UWB session data.
      * This function needs to be called before each new UWB session.
      * Especially, this function needs to be called before calling startRanging.
+     * If UWB is unavailable, this function returns null.
      */
-    suspend fun initializeUWBSession(): ResponderUWBSessionData {
+    suspend fun initializeUWBSession(): ResponderUWBSessionData? {
         // Note: Android allocates a new random local address for every new session
-        val controleeSessionScope = uwbManager.controleeSessionScope()
-        val responderLocalAddress = controleeSessionScope.localAddress.address
-        val responderUWBSessionData = ResponderUWBSessionData(
-            responderLocalAddress = responderLocalAddress
-        )
-        this.controleeSessionScope = controleeSessionScope
-        return responderUWBSessionData
+        try {
+            val controleeSessionScope = uwbManager.controleeSessionScope()
+            val responderLocalAddress = controleeSessionScope.localAddress.address
+            val responderUWBSessionData = ResponderUWBSessionData(
+                responderLocalAddress = responderLocalAddress
+            )
+            this.controleeSessionScope = controleeSessionScope
+            return responderUWBSessionData
+        } catch (exception: UwbServiceNotAvailableException) {
+            return null
+        }
     }
 
     fun startRanging(

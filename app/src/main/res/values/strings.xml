@@ -26,6 +26,7 @@
     <string name="responders_latitude">Responder\'s latitude</string>
     <string name="responders_longitude">Responder\'s longitude</string>
     <string name="permissions_not_granted">This app requires access to nearby devices and your precise location in order to establish UWB connections and function properly. Please go to the app settings to grant permissions.</string>
+    <string name="uwb_unavailable">UWB is currently unavailable, which prevents the app from establishing UWB connections and functioning properly. Please go to the settings to ensure UWB is turned on and airplane mode is turned off.</string>
     <string name="marker_title">Precise location</string>
     <string name="marker_body">Calculated using UWB</string>
     <string name="latitude_7_decimal_places">Latitude (7 decimal places)</string>

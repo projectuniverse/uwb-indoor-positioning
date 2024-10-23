@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.uwbindoorpositioning.R
-import com.example.uwbindoorpositioning.ui.screens.troubleshooting.UWBErrorScreen
 
 @Composable
 fun ResponderScreen(
@@ -28,9 +27,6 @@ fun ResponderScreen(
     viewModel: ResponderViewModel,
     modifier: Modifier = Modifier
 ) {
-    // State about device's own hardware capabilities
-    val doesDeviceSupportUWBRangingState = viewModel.doesDeviceSupportUWBRangingState.collectAsStateWithLifecycle(initialValue = null)
-
     // UWB ranging state
     val distanceState = viewModel.distanceState.collectAsStateWithLifecycle(initialValue = null)
     val azimuthState = viewModel.azimuthState.collectAsStateWithLifecycle(initialValue = null)
@@ -42,7 +38,6 @@ fun ResponderScreen(
     val anchorCompassBearingState = viewModel.anchorCompassBearingState.collectAsStateWithLifecycle(initialValue = null)
 
     // State variables
-    val doesDeviceSupportUWBRanging = doesDeviceSupportUWBRangingState.value
     val distance = distanceState.value
     val azimuth = azimuthState.value
     val elevation = elevationState.value
@@ -69,79 +64,70 @@ fun ResponderScreen(
         }
     }
 
-    if (doesDeviceSupportUWBRanging != null) {
-        if (!doesDeviceSupportUWBRanging) {
-            UWBErrorScreen(
-                errorMessage = stringResource(R.string.device_does_not_support_uwb_ranging),
-                modifier = modifier
-            )
-        } else {
-            if (!isAllRelevantAnchorDataAvailable) {
-                ResponderSearchScreen(
-                    viewModel = viewModel,
-                    modifier = modifier
+    if (!isAllRelevantAnchorDataAvailable) {
+        ResponderSearchScreen(
+            viewModel = viewModel,
+            modifier = modifier
+        )
+    } else {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier
+        ) {
+            TabRow(selectedTabIndex = selectedTabIndex) {
+                tabs.forEachIndexed { index, item ->
+                    Tab(
+                        selected = index == selectedTabIndex,
+                        onClick = { selectedTabIndex = index },
+                        text = { Text(text = item) }
+                    )
+                }
+            }
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f) // Inside Column, HorizontalPager gets all space left besides TabRow
+            ) { index ->
+                val formattedDistance = viewModel.formatDecimalNumber(
+                    decimalNumber = distance!!.toDouble(),
+                    numberOfDecimalPlaces = 2
                 )
-            } else {
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = modifier
-                ) {
-                    TabRow(selectedTabIndex = selectedTabIndex) {
-                        tabs.forEachIndexed { index, item ->
-                            Tab(
-                                selected = index == selectedTabIndex,
-                                onClick = { selectedTabIndex = index },
-                                text = { Text(text = item) }
-                            )
-                        }
-                    }
-                    HorizontalPager(
-                        state = pagerState,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f) // Inside Column, HorizontalPager gets all space left besides TabRow
-                    ) { index ->
-                        val formattedDistance = viewModel.formatDecimalNumber(
-                            decimalNumber = distance!!.toDouble(),
-                            numberOfDecimalPlaces = 2
-                        )
-                        val formattedAzimuth = viewModel.formatDecimalNumber(
-                            decimalNumber = azimuth!!.toDouble(),
-                            numberOfDecimalPlaces = 2,
-                            minValue = -90.0,
-                            maxValue = 90.0
-                        )
-                        val formattedElevation = viewModel.formatDecimalNumber(
-                            decimalNumber = elevation!!.toDouble(),
-                            numberOfDecimalPlaces = 2,
-                            minValue = -90.0,
-                            maxValue = 90.0
-                        )
-                        if (index == 0) {
-                            RangingTab(
-                                isDark = isDark,
-                                distance = formattedDistance,
-                                azimuth = formattedAzimuth,
-                                elevation = formattedElevation,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        } else {
-                            val preciseLocation = viewModel.getPreciseLocation(
-                                distance = formattedDistance.toFloat(),
-                                azimuth = formattedAzimuth.toFloat(),
-                                elevation = formattedElevation.toFloat(),
-                                anchorLatitude = anchorLatitude!!,
-                                anchorLongitude = anchorLongitude!!,
-                                anchorCompassBearing = anchorCompassBearing!!
-                            )
-                            LocationTab(
-                                preciseLatitude = preciseLocation[0],
-                                preciseLongitude = preciseLocation[1],
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
-                    }
+                val formattedAzimuth = viewModel.formatDecimalNumber(
+                    decimalNumber = azimuth!!.toDouble(),
+                    numberOfDecimalPlaces = 2,
+                    minValue = -90.0,
+                    maxValue = 90.0
+                )
+                val formattedElevation = viewModel.formatDecimalNumber(
+                    decimalNumber = elevation!!.toDouble(),
+                    numberOfDecimalPlaces = 2,
+                    minValue = -90.0,
+                    maxValue = 90.0
+                )
+                if (index == 0) {
+                    RangingTab(
+                        isDark = isDark,
+                        distance = formattedDistance,
+                        azimuth = formattedAzimuth,
+                        elevation = formattedElevation,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    val preciseLocation = viewModel.getPreciseLocation(
+                        distance = formattedDistance.toFloat(),
+                        azimuth = formattedAzimuth.toFloat(),
+                        elevation = formattedElevation.toFloat(),
+                        anchorLatitude = anchorLatitude!!,
+                        anchorLongitude = anchorLongitude!!,
+                        anchorCompassBearing = anchorCompassBearing!!
+                    )
+                    LocationTab(
+                        preciseLatitude = preciseLocation[0],
+                        preciseLongitude = preciseLocation[1],
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
         }

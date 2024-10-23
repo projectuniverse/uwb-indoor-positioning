@@ -31,13 +31,22 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             // State
-            val isDeviceUWBCapable = viewModel.isDeviceUWBCapable()
-            val userPreferencesState = viewModel.userPreferencesFlow.collectAsStateWithLifecycle(initialValue = null)
-            val arePermissionsGrantedState = viewModel.arePermissionsGrantedState.collectAsStateWithLifecycle(initialValue = null)
+            val userPreferencesState =
+                viewModel.userPreferencesFlow.collectAsStateWithLifecycle(initialValue = null)
+            val isDeviceUWBCapableState =
+                viewModel.isDeviceUWBCapableState.collectAsStateWithLifecycle()
+            val arePermissionsGrantedState =
+                viewModel.arePermissionsGrantedState.collectAsStateWithLifecycle()
+            val doesDeviceSupportUWBRangingState =
+                viewModel.doesDeviceSupportUWBRangingState.collectAsStateWithLifecycle()
+            val isUWBAvailableState = viewModel.isUWBAvailableState.collectAsStateWithLifecycle()
 
             // State variables
             val userPreferences = userPreferencesState.value
+            val isDeviceUWBCapable = isDeviceUWBCapableState.value
             val arePermissionsGranted = arePermissionsGrantedState.value
+            val doesDeviceSupportUWBRanging = doesDeviceSupportUWBRangingState.value
+            val isUWBAvailable = isUWBAvailableState.value
 
             // Checking for null makes sure the appTheme is known before displaying the app
             if (userPreferences != null) {
@@ -56,32 +65,32 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     )
+                    val lifecycleOwner = LocalLifecycleOwner.current
 
-                    // Request permissions
-                    if (arePermissionsGranted != null) {
-                        val lifecycleOwner = LocalLifecycleOwner.current
-                        DisposableEffect(
-                            key1 = lifecycleOwner,
-                            effect = {
-                                val observer = LifecycleEventObserver { _, event ->
-                                    if (event == Lifecycle.Event.ON_START && isDeviceUWBCapable && !arePermissionsGranted) {
-                                        multiplePermissionResultLauncher.launch(viewModel.permissionsToRequest)
-                                    }
-                                }
-                                lifecycleOwner.lifecycle.addObserver(observer)
-                                onDispose {
-                                    lifecycleOwner.lifecycle.removeObserver(observer)
+                    DisposableEffect(
+                        key1 = lifecycleOwner,
+                        effect = {
+                            val observer = LifecycleEventObserver { _, event ->
+                                // Only request (again) if permissions are not granted and device is UWB capable
+                                if (event == Lifecycle.Event.ON_START && !arePermissionsGranted && isDeviceUWBCapable) {
+                                    multiplePermissionResultLauncher.launch(viewModel.permissionsToRequest)
                                 }
                             }
-                        )
+                            lifecycleOwner.lifecycle.addObserver(observer)
+                            onDispose {
+                                lifecycleOwner.lifecycle.removeObserver(observer)
+                            }
+                        }
+                    )
 
-                        UWBIndoorPositioningApp(
-                            isDeviceUWBCapable = isDeviceUWBCapable,
-                            arePermissionsGranted = arePermissionsGranted,
-                            selectedTheme = userPreferences.appTheme,
-                            setAppTheme = { appTheme -> viewModel.setAppTheme(appTheme) }
-                        )
-                    }
+                    UWBIndoorPositioningApp(
+                        isDeviceUWBCapable = isDeviceUWBCapable,
+                        arePermissionsGranted = arePermissionsGranted,
+                        doesDeviceSupportUWBRanging = doesDeviceSupportUWBRanging,
+                        isUWBAvailable = isUWBAvailable,
+                        selectedTheme = userPreferences.appTheme,
+                        setAppTheme = { appTheme -> viewModel.setAppTheme(appTheme) }
+                    )
                 }
             }
         }

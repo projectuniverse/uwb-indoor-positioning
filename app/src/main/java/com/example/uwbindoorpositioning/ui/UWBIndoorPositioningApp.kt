@@ -41,6 +41,8 @@ import com.example.uwbindoorpositioning.ui.screens.start.StartScreen
 import com.example.uwbindoorpositioning.ui.screens.troubleshooting.PermissionsNotGrantedScreen
 import com.example.uwbindoorpositioning.ui.screens.troubleshooting.PermissionsNotGrantedViewModel
 import com.example.uwbindoorpositioning.ui.screens.troubleshooting.UWBErrorScreen
+import com.example.uwbindoorpositioning.ui.screens.troubleshooting.UWBUnavailableScreen
+import com.example.uwbindoorpositioning.ui.screens.troubleshooting.UWBUnavailableViewModel
 import com.example.uwbindoorpositioning.ui.theme.padding
 import com.example.uwbindoorpositioning.ui.theme.spacing
 import kotlinx.serialization.Serializable
@@ -106,6 +108,8 @@ fun AppBar(
 fun UWBIndoorPositioningApp(
     isDeviceUWBCapable: Boolean,
     arePermissionsGranted: Boolean,
+    doesDeviceSupportUWBRanging: Boolean?,
+    isUWBAvailable: Boolean?,
     selectedTheme: AppTheme,
     setAppTheme: (AppTheme) -> Unit,
     modifier: Modifier = Modifier,
@@ -168,11 +172,34 @@ fun UWBIndoorPositioningApp(
             )
         }
         else if (!arePermissionsGranted) {
+            if (hasNavGraphBeenBuilt(navController)) {
+                navController.popBackStack(StartScreen, false)
+            }
             val viewModel = hiltViewModel<PermissionsNotGrantedViewModel>()
             PermissionsNotGrantedScreen(
                 viewModel = viewModel,
                 modifier = rootModifier
             )
+        }
+        else if (isUWBAvailable == null || !isUWBAvailable) {
+            if (isUWBAvailable != null) {
+                if (hasNavGraphBeenBuilt(navController)) {
+                    navController.popBackStack(StartScreen, false)
+                }
+                val viewModel = hiltViewModel<UWBUnavailableViewModel>()
+                UWBUnavailableScreen(
+                    viewModel = viewModel,
+                    modifier = rootModifier
+                )
+            }
+        }
+        else if (doesDeviceSupportUWBRanging == null || !doesDeviceSupportUWBRanging) {
+            if (doesDeviceSupportUWBRanging != null) {
+                UWBErrorScreen(
+                    errorMessage = stringResource(R.string.device_does_not_support_uwb_ranging),
+                    modifier = rootModifier
+                )
+            }
         }
         else {
             NavHost(
@@ -232,6 +259,15 @@ fun UWBIndoorPositioningApp(
                 }
             }
         }
+    }
+}
+
+private fun hasNavGraphBeenBuilt(navController: NavHostController): Boolean {
+    try {
+        navController.graph
+        return true
+    }  catch (exception: IllegalStateException) {
+        return false
     }
 }
 

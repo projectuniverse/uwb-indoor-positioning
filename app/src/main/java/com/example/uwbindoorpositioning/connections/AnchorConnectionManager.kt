@@ -6,11 +6,7 @@ class AnchorConnectionManager @Inject constructor(
     private val anchorNearbyConnector: AnchorNearbyConnector,
     private val anchorUWBConnector: AnchorUWBConnector
 ) {
-    suspend fun doesDeviceSupportUWBRanging() : Boolean {
-        return anchorUWBConnector.doesDeviceSupportUWBRanging()
-    }
-
-    suspend fun initializeUWBSession(): AnchorUWBSessionData {
+    suspend fun initializeUWBSession(): AnchorUWBSessionData? {
         return anchorUWBConnector.initializeUWBSession()
     }
 

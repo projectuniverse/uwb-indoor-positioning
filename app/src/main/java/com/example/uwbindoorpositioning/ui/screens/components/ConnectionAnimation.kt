@@ -3,7 +3,6 @@ package com.example.uwbindoorpositioning.ui.screens.components
 import android.content.Context
 import android.graphics.drawable.AnimationDrawable
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -14,7 +13,8 @@ import com.google.accompanist.drawablepainter.rememberDrawablePainter
 // Composable that is used by multiple screens and was moved to components due to that
 @Composable
 fun ConnectionAnimation(
-    context: Context
+    context: Context,
+    modifier: Modifier = Modifier
 ) {
     val duration = 1000
     val emptyDrawable = ContextCompat.getDrawable(context, R.drawable.empty_vector)
@@ -31,8 +31,8 @@ fun ConnectionAnimation(
     Image(
         painter = rememberDrawablePainter(animationDrawable),
         contentDescription = null,
-        modifier = Modifier.wrapContentSize(),
-        contentScale = ContentScale.Crop
+        contentScale = ContentScale.Crop,
+        modifier = modifier
     )
 
     animationDrawable.start()

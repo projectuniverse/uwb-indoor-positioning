@@ -4,11 +4,13 @@ import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
@@ -16,6 +18,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import androidx.window.core.layout.WindowHeightSizeClass
+import androidx.window.core.layout.WindowWidthSizeClass
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -282,9 +286,43 @@ fun UWBIndoorPositioningTheme(
         }
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = AppTypography,
-        content = content
-    )
+    /*
+     * Gives information about the current screen size. E.g., most phones in portrait have a compact screen width.
+     * https://developer.android.com/develop/ui/compose/layouts/adaptive/use-window-size-classes
+     */
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    val padding: Padding = when(windowSizeClass.windowWidthSizeClass) {
+        WindowWidthSizeClass.MEDIUM -> {
+            mediumWidthPadding
+        }
+        WindowWidthSizeClass.EXPANDED -> {
+            expandedWidthPadding
+        }
+        else -> { // Default value. E.g., WindowWidthSizeClass.COMPACT
+            compactWidthPadding
+        }
+    }
+    val spacing = when(windowSizeClass.windowHeightSizeClass) {
+        WindowHeightSizeClass.MEDIUM -> {
+            mediumHeightSpacing
+        }
+        WindowHeightSizeClass.EXPANDED -> {
+            expandedHeightSpacing
+        }
+        else -> { // Default value. E.g., WindowHeightSizeClass.COMPACT
+            compactHeightSpacing
+        }
+    }
+
+    CompositionLocalProvider(
+        LocalPadding provides padding,
+        LocalSpacing provides spacing,
+        LocalDimensions provides Dimensions(),
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = AppTypography,
+            content = content
+        )
+    }
 }

@@ -72,8 +72,6 @@ class ResponderViewModel @Inject constructor(
         anchorCompassBearing: Int
     ): List<String> {
         val anchorLocation = LatLng(anchorLatitude, anchorLongitude)
-        // TODO What value is azimuth if person is behind phone?
-        // TODO need to work with responder compass since rotation of responder phone displaces responder's precise location
         /*
          * Trigonometry to find horizontal distance and heading (assuming negative azimuth
          * is right of device and positive azimuth left of it)

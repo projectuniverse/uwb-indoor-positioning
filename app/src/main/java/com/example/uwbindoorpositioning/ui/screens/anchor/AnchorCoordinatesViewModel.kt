@@ -10,11 +10,15 @@ class AnchorCoordinatesViewModel @Inject constructor() : ViewModel() {
     private val _anchorLatitudeInputState = MutableStateFlow("")
     private val _anchorLongitudeInputState = MutableStateFlow("")
     private val _anchorCompassBearingInputState = MutableStateFlow("")
-    private val _areSubmittedInputsValidState = MutableStateFlow(true)
+    private val _didUserEnteredValidLatitudeState = MutableStateFlow(true)
+    private val _didUserEnteredValidLongitudeState = MutableStateFlow(true)
+    private val _didUserEnteredValidCompassBearingState = MutableStateFlow(true)
     val anchorLatitudeInputState = _anchorLatitudeInputState.asStateFlow()
     val anchorLongitudeInputState = _anchorLongitudeInputState.asStateFlow()
     val anchorCompassBearingInputState = _anchorCompassBearingInputState.asStateFlow()
-    val areSubmittedInputsValidState = _areSubmittedInputsValidState.asStateFlow()
+    val didUserEnteredValidLatitudeState = _didUserEnteredValidLatitudeState.asStateFlow()
+    val didUserEnteredValidLongitudeState = _didUserEnteredValidLongitudeState.asStateFlow()
+    val didUserEnteredValidCompassBearingState = _didUserEnteredValidCompassBearingState.asStateFlow()
 
     fun updateAnchorLatitudeInput(input: String) {
         if (doesCoordinateInputHaveCorrectFormat(input, true)) {
@@ -51,20 +55,15 @@ class AnchorCoordinatesViewModel @Inject constructor() : ViewModel() {
         val anchorLatitude = _anchorLatitudeInputState.value.toDoubleOrNull()
         val anchorLongitude = _anchorLongitudeInputState.value.toDoubleOrNull()
         val anchorCompassBearing = _anchorCompassBearingInputState.value.toIntOrNull()
-        val didUserEnteredValidLatitude =
-            anchorLatitude != null && numberOfDecimalPlaces(_anchorLatitudeInputState.value) == 7
-        val didUserEnteredValidLongitude =
-            anchorLongitude != null && numberOfDecimalPlaces(_anchorLongitudeInputState.value) == 7
-        val didUserEnteredValidCompassBearing = anchorCompassBearing != null
+        val isValidLatitude = anchorLatitude != null && numberOfDecimalPlaces(_anchorLatitudeInputState.value) == 7
+        val isValidLongitude = anchorLongitude != null && numberOfDecimalPlaces(_anchorLongitudeInputState.value) == 7
+        val isValidCompassBearing = anchorCompassBearing != null
 
-        if (didUserEnteredValidLatitude && didUserEnteredValidLongitude && didUserEnteredValidCompassBearing) {
-            _areSubmittedInputsValidState.value = true
-            return true
-        }
-        else {
-            _areSubmittedInputsValidState.value = false
-            return false
-        }
+        _didUserEnteredValidLatitudeState.value = isValidLatitude
+        _didUserEnteredValidLongitudeState.value = isValidLongitude
+        _didUserEnteredValidCompassBearingState.value = isValidCompassBearing
+
+        return isValidLatitude && isValidLongitude && isValidCompassBearing
     }
 
     private fun numberOfDecimalPlaces(input: String): Int {

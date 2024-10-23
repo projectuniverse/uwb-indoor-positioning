@@ -10,9 +10,10 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel(assistedFactory = AnchorSearchViewModel.Factory::class)
 class AnchorSearchViewModel @AssistedInject constructor(
@@ -31,39 +32,37 @@ class AnchorSearchViewModel @AssistedInject constructor(
         ): AnchorSearchViewModel
     }
 
-    // State about device's own hardware capabilities
-    private val _doesDeviceSupportUWBRangingState = MutableStateFlow<Boolean?>(null)
-    val doesDeviceSupportUWBRangingState = _doesDeviceSupportUWBRangingState.asStateFlow()
-
     init {
         viewModelScope.launch {
-            val doesDeviceSupportUWBRanging = anchorConnectionManager.doesDeviceSupportUWBRanging()
-            _doesDeviceSupportUWBRangingState.value = doesDeviceSupportUWBRanging
-            if (doesDeviceSupportUWBRanging) {
-                // Initial start of advertising
-                startAdvertising()
-            }
+            // Initial start of advertising
+            startAdvertising()
         }
     }
 
     private fun startAdvertising() {
         viewModelScope.launch {
-            val anchorUWBSessionData = anchorConnectionManager.initializeUWBSession()
-            val anchorNearbyPayload = AnchorNearbyPayload(
-                anchorUWBSessionData = anchorUWBSessionData,
-                anchorLatitude = anchorLatitude.toDouble(),
-                anchorLongitude = anchorLongitude.toDouble(),
-                anchorCompassBearing = anchorCompassBearing.toInt()
-            )
-            anchorConnectionManager.startAdvertising(
-                anchorNearbyPayload = anchorNearbyPayload,
-                onNearbyConnectionEstablished = { responderNearbyPayload ->
-                    anchorConnectionManager.startRanging(
-                        responderNearbyPayload = responderNearbyPayload
-                    )
-                    startAdvertising()
-                }
-            )
+            var anchorUWBSessionData = anchorConnectionManager.initializeUWBSession()
+            while (isActive && anchorUWBSessionData == null) {
+                anchorUWBSessionData = anchorConnectionManager.initializeUWBSession()
+                delay(1000.milliseconds)
+            }
+            if (anchorUWBSessionData != null) {
+                val anchorNearbyPayload = AnchorNearbyPayload(
+                    anchorUWBSessionData = anchorUWBSessionData,
+                    anchorLatitude = anchorLatitude.toDouble(),
+                    anchorLongitude = anchorLongitude.toDouble(),
+                    anchorCompassBearing = anchorCompassBearing.toInt()
+                )
+                anchorConnectionManager.startAdvertising(
+                    anchorNearbyPayload = anchorNearbyPayload,
+                    onNearbyConnectionEstablished = { responderNearbyPayload ->
+                        anchorConnectionManager.startRanging(
+                            responderNearbyPayload = responderNearbyPayload
+                        )
+                        startAdvertising()
+                    }
+                )
+            }
         }
     }
 

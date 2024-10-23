@@ -8,6 +8,7 @@ import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbControllerSessionScope
 import androidx.core.uwb.UwbDevice
 import androidx.core.uwb.UwbManager
+import androidx.core.uwb.exceptions.UwbServiceNotAvailableException
 import com.google.android.gms.nearby.uwb.RangingParameters.SUB_SESSION_ID_UNSET
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -28,36 +29,33 @@ class AnchorUWBConnector @Inject constructor(
     // Controller session scopes for the current uwb sessions
     private val controllerSessionScopes = mutableMapOf<String, UwbControllerSessionScope>()
 
-    suspend fun doesDeviceSupportUWBRanging() : Boolean {
-        val controllerSessionScope = uwbManager.controllerSessionScope()
-        val isDistanceSupported = controllerSessionScope.rangingCapabilities.isDistanceSupported
-        val isAzimuthalAngleSupported = controllerSessionScope.rangingCapabilities.isAzimuthalAngleSupported
-        val isElevationAngleSupported = controllerSessionScope.rangingCapabilities.isElevationAngleSupported
-        return isDistanceSupported && isAzimuthalAngleSupported && isElevationAngleSupported
-    }
-
     /*
      * Initializes a new UWB session and returns the anchor's relevant UWB session data.
      * This function needs to be called before each new UWB session.
      * Especially, this function needs to be called before calling startRanging.
+     * If UWB is unavailable, this function returns null.
      */
-    suspend fun initializeUWBSession(): AnchorUWBSessionData {
+    suspend fun initializeUWBSession(): AnchorUWBSessionData? {
         // Note: Android allocates a new random local address for every new session
-        val controllerSessionScope = uwbManager.controllerSessionScope()
-        val anchorLocalAddress = controllerSessionScope.localAddress.address
-        val sessionId = Random.nextInt()
-        val sessionKeyInfo = Random.nextBytes(8)
-        val channel = controllerSessionScope.uwbComplexChannel.channel
-        val preambleIndex = controllerSessionScope.uwbComplexChannel.preambleIndex
-        val anchorUWBSessionData = AnchorUWBSessionData(
-            anchorLocalAddress = anchorLocalAddress,
-            sessionId = sessionId,
-            sessionKeyInfo = sessionKeyInfo,
-            channel = channel,
-            preambleIndex = preambleIndex
-        )
-        controllerSessionScopes[anchorLocalAddress.contentToString()] = controllerSessionScope
-        return anchorUWBSessionData
+        try {
+            val controllerSessionScope = uwbManager.controllerSessionScope()
+            val anchorLocalAddress = controllerSessionScope.localAddress.address
+            val sessionId = Random.nextInt()
+            val sessionKeyInfo = Random.nextBytes(8)
+            val channel = controllerSessionScope.uwbComplexChannel.channel
+            val preambleIndex = controllerSessionScope.uwbComplexChannel.preambleIndex
+            val anchorUWBSessionData = AnchorUWBSessionData(
+                anchorLocalAddress = anchorLocalAddress,
+                sessionId = sessionId,
+                sessionKeyInfo = sessionKeyInfo,
+                channel = channel,
+                preambleIndex = preambleIndex
+            )
+            controllerSessionScopes[anchorLocalAddress.contentToString()] = controllerSessionScope
+            return anchorUWBSessionData
+        } catch (exception: UwbServiceNotAvailableException) {
+            return null
+        }
     }
 
     fun startRanging(

@@ -8,23 +8,20 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.SphericalUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class ResponderViewModel @Inject constructor(
     private val responderConnectionManager: ResponderConnectionManager,
     @ApplicationContext val context: Context
 ) : ViewModel() {
-    // State about device's own hardware capabilities
-    private val _doesDeviceSupportUWBRangingState = MutableStateFlow<Boolean?>(null)
-    val doesDeviceSupportUWBRangingState = _doesDeviceSupportUWBRangingState.asStateFlow()
-
     // UWB ranging state
     val distanceState = responderConnectionManager.distanceState
     val azimuthState = responderConnectionManager.azimuthState
@@ -37,29 +34,31 @@ class ResponderViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val doesDeviceSupportUWBRanging = responderConnectionManager.doesDeviceSupportUWBRanging()
-            _doesDeviceSupportUWBRangingState.value = doesDeviceSupportUWBRanging
-            if (doesDeviceSupportUWBRanging) {
-                // Initial start of discovery
-                startDiscovery()
-            }
+            // Initial start of discovery
+            startDiscovery()
         }
     }
 
     private fun startDiscovery() {
         viewModelScope.launch {
-            val responderUWBSessionData = responderConnectionManager.initializeUWBSession()
-            responderConnectionManager.startDiscovery(
-                responderUWBSessionData = responderUWBSessionData,
-                onNearbyConnectionEstablished = { anchorUWBSessionData ->
-                    responderConnectionManager.startRanging(
-                        anchorUWBSessionData = anchorUWBSessionData,
-                        onUWBConnectionLost = {
-                            startDiscovery()
-                        }
-                    )
-                }
-            )
+            var responderUWBSessionData = responderConnectionManager.initializeUWBSession()
+            while (isActive && responderUWBSessionData == null) {
+                responderUWBSessionData = responderConnectionManager.initializeUWBSession()
+                delay(1000.milliseconds)
+            }
+            if (responderUWBSessionData != null) {
+                responderConnectionManager.startDiscovery(
+                    responderUWBSessionData = responderUWBSessionData,
+                    onNearbyConnectionEstablished = { anchorUWBSessionData ->
+                        responderConnectionManager.startRanging(
+                            anchorUWBSessionData = anchorUWBSessionData,
+                            onUWBConnectionLost = {
+                                startDiscovery()
+                            }
+                        )
+                    }
+                )
+            }
         }
     }
 

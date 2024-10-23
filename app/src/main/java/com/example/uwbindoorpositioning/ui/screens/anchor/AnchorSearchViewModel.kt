@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-// TODO check which hilt injected fields can be private (check in all classes)
 @HiltViewModel(assistedFactory = AnchorSearchViewModel.Factory::class)
 class AnchorSearchViewModel @AssistedInject constructor(
     @Assisted("anchorLatitude") val anchorLatitude: String,

@@ -1,6 +1,11 @@
 package com.example.uwbindoorpositioning.ui.screens.troubleshooting
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -14,44 +19,41 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.uwbindoorpositioning.R
+import com.example.uwbindoorpositioning.ui.theme.dimensions
+import com.example.uwbindoorpositioning.ui.theme.spacing
 
 @Composable
 fun PermissionsNotGrantedScreen(
     viewModel: PermissionsNotGrantedViewModel,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-            .verticalScroll(rememberScrollState())
-            .padding(20.dp)
+        modifier = modifier.verticalScroll(rememberScrollState())
     ) {
         Icon(
             imageVector = Icons.Rounded.ErrorOutline,
             contentDescription = null,
-            modifier = Modifier.size(100.dp)
+            modifier = Modifier.size(MaterialTheme.dimensions.errorIconSize)
         )
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.size(MaterialTheme.spacing.largeSpacerSize))
         Text(
             text = stringResource(R.string.permissions_not_granted),
-            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.width(260.dp)
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.size(MaterialTheme.spacing.largeSpacerSize))
         Button(
             onClick = { viewModel.openAppSettings() },
             modifier = Modifier
-                .width(200.dp)
-                .height(55.dp)
+                .fillMaxWidth(MaterialTheme.dimensions.regularButtonWidthPercentage)
+                .height(MaterialTheme.dimensions.regularButtonHeight)
         ) {
             Text(
                 text = stringResource(R.string.go_to_settings),
-                style = MaterialTheme.typography.labelLarge.copy(fontSize = 20.sp)
+                style = MaterialTheme.typography.labelLarge
             )
         }
     }

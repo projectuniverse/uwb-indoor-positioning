@@ -2,18 +2,26 @@ package com.example.uwbindoorpositioning.ui
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.LightMode
 import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -32,7 +40,9 @@ import com.example.uwbindoorpositioning.ui.screens.responder.ResponderViewModel
 import com.example.uwbindoorpositioning.ui.screens.start.StartScreen
 import com.example.uwbindoorpositioning.ui.screens.troubleshooting.PermissionsNotGrantedScreen
 import com.example.uwbindoorpositioning.ui.screens.troubleshooting.PermissionsNotGrantedViewModel
-import com.example.uwbindoorpositioning.ui.screens.troubleshooting.UWBIncapableScreen
+import com.example.uwbindoorpositioning.ui.screens.troubleshooting.UWBErrorScreen
+import com.example.uwbindoorpositioning.ui.theme.padding
+import com.example.uwbindoorpositioning.ui.theme.spacing
 import kotlinx.serialization.Serializable
 
 // Enum class that defines the screens for the Navhost
@@ -53,7 +63,6 @@ fun AppBar(
 ) {
     TopAppBar(
         title = { Text(text = stringResource(currentScreen.title)) },
-        modifier = modifier,
         navigationIcon = {
             if (canNavigateBack) {
                 IconButton(onClick = navigateUp) {
@@ -81,15 +90,15 @@ fun AppBar(
                         AppTheme.MODE_NIGHT -> Icons.Rounded.DarkMode
                     },
                     contentDescription = null,
-                    modifier = Modifier.size(22.dp)
                 )
-                Spacer(modifier = Modifier.width(6.dp))
+                Spacer(modifier = Modifier.width(MaterialTheme.spacing.topAppBarSmallSpacerSize))
                 Text(
                     text = stringResource(selectedTheme.title),
-                    style = MaterialTheme.typography.labelLarge
+                    style = MaterialTheme.typography.labelMedium
                 )
             }
-        }
+        },
+        modifier = modifier
     )
 }
 
@@ -99,6 +108,7 @@ fun UWBIndoorPositioningApp(
     arePermissionsGranted: Boolean,
     selectedTheme: AppTheme,
     setAppTheme: (AppTheme) -> Unit,
+    modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController()
 ) {
     val isDark = when (selectedTheme) {
@@ -132,33 +142,48 @@ fun UWBIndoorPositioningApp(
                 canNavigateBack = navController.previousBackStackEntry != null,
                 navigateUp = { navController.navigateUp() }
             )
-        }
-    ) { innerPadding ->
-        // This is where the app's content will be displayed and switched
-        // TODO Should I use innerpadding so that I don't have to set a padding for each screen manually?
+        },
+        modifier = modifier
+    ) { innerPadding -> // Prevents the top app bar from covering content
+        /*
+         * Ensures that all composables using rootModifier fill their max size and have padding,
+         * regardless of their own size calls. Accepting a modifier follows best practices, see:
+         * https://chrisbanes.me/posts/always-provide-a-modifier/ and
+         * https://android.googlesource.com/platform/frameworks/support/+/androidx-main/compose/docs/compose-api-guidelines.md#elements-accept-and-respect-a-modifier-parameter
+         */
+        val rootModifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)
+            .padding(
+                top = MaterialTheme.padding.verticalPadding,
+                bottom = MaterialTheme.padding.verticalPadding,
+                start = MaterialTheme.padding.horizontalPadding,
+                end = MaterialTheme.padding.horizontalPadding
+            )
+
         if (!isDeviceUWBCapable) {
-            UWBIncapableScreen(
-                modifier = Modifier.fillMaxSize()
+            UWBErrorScreen(
+                errorMessage = stringResource(R.string.no_uwb_support),
+                modifier = rootModifier
             )
         }
         else if (!arePermissionsGranted) {
             val viewModel = hiltViewModel<PermissionsNotGrantedViewModel>()
             PermissionsNotGrantedScreen(
                 viewModel = viewModel,
-                modifier = Modifier.fillMaxSize()
+                modifier = rootModifier
             )
         }
         else {
             NavHost(
                 navController = navController,
-                startDestination = StartScreen,
-                modifier = Modifier.padding(innerPadding)
+                startDestination = StartScreen
             ) {
                 composable<StartScreen> {
                     StartScreen(
                         onUWBResponderButtonClicked = { navController.navigate(ResponderScreen) },
                         onUWBAnchorButtonClicked = { navController.navigate(AnchorCoordinatesScreen) },
-                        modifier = Modifier.fillMaxSize()
+                        modifier = rootModifier
                     )
                 }
                 composable<ResponderScreen> {
@@ -166,7 +191,7 @@ fun UWBIndoorPositioningApp(
                     ResponderScreen(
                         isDark = isDark,
                         viewModel = viewModel,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = rootModifier
                     )
                 }
                 composable<AnchorCoordinatesScreen> {
@@ -182,7 +207,7 @@ fun UWBIndoorPositioningApp(
                             )
                         },
                         viewModel = viewModel,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = rootModifier
                     )
                 }
                 // Use navigation arguments to pass anchor latitude, longitude and compass bearing between screens
@@ -202,7 +227,7 @@ fun UWBIndoorPositioningApp(
                     )
                     AnchorSearchScreen(
                         viewModel = viewModel,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = rootModifier
                     )
                 }
             }

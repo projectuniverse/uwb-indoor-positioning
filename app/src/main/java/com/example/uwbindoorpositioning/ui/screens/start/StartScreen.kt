@@ -1,6 +1,11 @@
 package com.example.uwbindoorpositioning.ui.screens.start
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -11,9 +16,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.uwbindoorpositioning.R
+import com.example.uwbindoorpositioning.ui.theme.dimensions
+import com.example.uwbindoorpositioning.ui.theme.spacing
 
 @Composable
 fun StartScreen(
@@ -24,38 +29,35 @@ fun StartScreen(
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-            .verticalScroll(rememberScrollState())
-            .padding(20.dp)
+        modifier = modifier.verticalScroll(rememberScrollState())
     ) {
         Text(
             text = stringResource(R.string.choose_role),
-            style = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.width(300.dp)
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(50.dp))
+        Spacer(modifier = Modifier.size(MaterialTheme.spacing.largeSpacerSize))
         Button(
             onClick = onUWBResponderButtonClicked,
             modifier = Modifier
-                .width(300.dp)
-                .height(80.dp)
+                .fillMaxWidth(MaterialTheme.dimensions.largeButtonWidthPercentage)
+                .height(MaterialTheme.dimensions.largeButtonHeight)
         ) {
             Text(
                 text = stringResource(R.string.uwb_responder),
-                style = MaterialTheme.typography.labelLarge.copy(fontSize = 20.sp)
+                style = MaterialTheme.typography.labelLarge
             )
         }
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.size(MaterialTheme.spacing.regularSpacerSize))
         Button(
             onClick = onUWBAnchorButtonClicked,
             modifier = Modifier
-                .width(300.dp)
-                .height(80.dp)
+                .fillMaxWidth(MaterialTheme.dimensions.largeButtonWidthPercentage)
+                .height(MaterialTheme.dimensions.largeButtonHeight)
         ) {
             Text(
                 text = stringResource(R.string.uwb_anchor),
-                style = MaterialTheme.typography.labelLarge.copy(fontSize = 20.sp)
+                style = MaterialTheme.typography.labelLarge
             )
         }
     }

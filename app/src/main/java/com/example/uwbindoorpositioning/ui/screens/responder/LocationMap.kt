@@ -1,32 +1,33 @@
 package com.example.uwbindoorpositioning.ui.screens.responder
 
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.example.uwbindoorpositioning.R
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.*
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
 fun LocationMap(
-    preciseLocation: LatLng
+    preciseLocation: LatLng,
+    modifier: Modifier = Modifier
 ) {
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(preciseLocation, 21f)
     }
     GoogleMap(
-        modifier = Modifier
-            .width(350.dp)
-            .height(400.dp),
         properties = MapProperties(
             mapType = MapType.SATELLITE,
             isMyLocationEnabled = true
         ),
-        cameraPositionState = cameraPositionState
+        cameraPositionState = cameraPositionState,
+        modifier = modifier
     ) {
         Marker(
             state = MarkerState(position = preciseLocation),

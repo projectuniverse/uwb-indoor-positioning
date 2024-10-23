@@ -1,33 +1,32 @@
 package com.example.uwbindoorpositioning.ui.screens.responder
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.uwbindoorpositioning.R
-import com.example.uwbindoorpositioning.ui.screens.components.InfoCard
-import com.example.uwbindoorpositioning.ui.screens.troubleshooting.UWBRangingIncapableScreen
-import com.google.android.gms.maps.model.LatLng
+import com.example.uwbindoorpositioning.ui.screens.troubleshooting.UWBErrorScreen
 
 @Composable
 fun ResponderScreen(
     isDark: Boolean,
     viewModel: ResponderViewModel,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     // State about device's own hardware capabilities
     val doesDeviceSupportUWBRangingState = viewModel.doesDeviceSupportUWBRangingState.collectAsStateWithLifecycle(initialValue = null)
@@ -70,25 +69,24 @@ fun ResponderScreen(
         }
     }
 
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-            .padding(start = 20.dp, end = 20.dp, top = 0.dp, bottom = 20.dp)
-        // TODO Add vertical scroll?
-    ) {
-        // TODO which composables should get Modifier.fillMaxSize()?
-        if (doesDeviceSupportUWBRanging != null) {
-            if (!doesDeviceSupportUWBRanging) {
-                UWBRangingIncapableScreen()
-            }
-            else {
-                if (!isAllRelevantAnchorDataAvailable) {
-                    ResponderSearchScreen(
-                        viewModel = viewModel
-                    )
-                }
-                else {
+    if (doesDeviceSupportUWBRanging != null) {
+        if (!doesDeviceSupportUWBRanging) {
+            UWBErrorScreen(
+                errorMessage = stringResource(R.string.device_does_not_support_uwb_ranging),
+                modifier = modifier
+            )
+        } else {
+            if (!isAllRelevantAnchorDataAvailable) {
+                ResponderSearchScreen(
+                    viewModel = viewModel,
+                    modifier = modifier
+                )
+            } else {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = modifier
+                ) {
                     TabRow(selectedTabIndex = selectedTabIndex) {
                         tabs.forEachIndexed { index, item ->
                             Tab(
@@ -104,113 +102,48 @@ fun ResponderScreen(
                             .fillMaxWidth()
                             .weight(1f) // Inside Column, HorizontalPager gets all space left besides TabRow
                     ) { index ->
-                        Column(
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier
-                                .verticalScroll(rememberScrollState())
-                                .fillMaxSize()
-                        ) {
-                            val formattedDistance = viewModel.formatDecimalNumber(
-                                decimalNumber = distance!!.toDouble(),
-                                numberOfDecimalPlaces = 2
+                        val formattedDistance = viewModel.formatDecimalNumber(
+                            decimalNumber = distance!!.toDouble(),
+                            numberOfDecimalPlaces = 2
+                        )
+                        val formattedAzimuth = viewModel.formatDecimalNumber(
+                            decimalNumber = azimuth!!.toDouble(),
+                            numberOfDecimalPlaces = 2,
+                            minValue = -90.0,
+                            maxValue = 90.0
+                        )
+                        val formattedElevation = viewModel.formatDecimalNumber(
+                            decimalNumber = elevation!!.toDouble(),
+                            numberOfDecimalPlaces = 2,
+                            minValue = -90.0,
+                            maxValue = 90.0
+                        )
+                        if (index == 0) {
+                            RangingTab(
+                                isDark = isDark,
+                                distance = formattedDistance,
+                                azimuth = formattedAzimuth,
+                                elevation = formattedElevation,
+                                modifier = Modifier.fillMaxSize()
                             )
-                            val formattedAzimuth = viewModel.formatDecimalNumber(
-                                decimalNumber = azimuth!!.toDouble(),
-                                numberOfDecimalPlaces = 2,
-                                minValue = -90.0,
-                                maxValue = 90.0
+                        } else {
+                            val preciseLocation = viewModel.getPreciseLocation(
+                                distance = formattedDistance.toFloat(),
+                                azimuth = formattedAzimuth.toFloat(),
+                                elevation = formattedElevation.toFloat(),
+                                anchorLatitude = anchorLatitude!!,
+                                anchorLongitude = anchorLongitude!!,
+                                anchorCompassBearing = anchorCompassBearing!!
                             )
-                            val formattedElevation = viewModel.formatDecimalNumber(
-                                decimalNumber = elevation!!.toDouble(),
-                                numberOfDecimalPlaces = 2,
-                                minValue = -90.0,
-                                maxValue = 90.0
+                            LocationTab(
+                                preciseLatitude = preciseLocation[0],
+                                preciseLongitude = preciseLocation[1],
+                                modifier = Modifier.fillMaxSize()
                             )
-                            if (index == 0) {
-                                RangingTab(
-                                    isDark = isDark,
-                                    distance = formattedDistance,
-                                    azimuth = formattedAzimuth,
-                                    elevation = formattedElevation
-                                )
-                            } else {
-                                val preciseLocation = viewModel.getPreciseLocation(
-                                    distance = formattedDistance.toFloat(),
-                                    azimuth = formattedAzimuth.toFloat(),
-                                    elevation = formattedElevation.toFloat(),
-                                    anchorLatitude = anchorLatitude!!,
-                                    anchorLongitude = anchorLongitude!!,
-                                    anchorCompassBearing = anchorCompassBearing!!
-                                )
-                                LocationTab(
-                                    preciseLatitude = preciseLocation[0],
-                                    preciseLongitude = preciseLocation[1]
-                                )
-                            }
                         }
                     }
                 }
             }
         }
     }
-}
-
-@Composable
-fun RangingTab(
-    isDark: Boolean,
-    distance: String,
-    azimuth: String,
-    elevation: String
-) {
-    Image(
-        painter = if (isDark) {
-            painterResource(R.drawable.arrow_upward_alt_white)
-        } else {
-            painterResource(R.drawable.arrow_upward_alt_black)
-        },
-        contentDescription = stringResource(R.string.arrow_upward),
-        modifier = Modifier
-            .wrapContentSize()
-            .rotate(azimuth.toFloat()),
-        contentScale = ContentScale.Crop
-    )
-    Spacer(modifier = Modifier.height(60.dp))
-    InfoCard(
-        title = stringResource(R.string.distance),
-        body = "$distance m"
-    )
-    Spacer(modifier = Modifier.height(10.dp))
-    InfoCard(
-        title = stringResource(R.string.azimuth),
-        body = "${azimuth}°"
-    )
-    Spacer(modifier = Modifier.height(10.dp))
-    InfoCard(
-        title = stringResource(R.string.elevation),
-        body = "${elevation}°"
-    )
-}
-
-@Composable
-fun LocationTab(
-    preciseLatitude: String,
-    preciseLongitude: String
-) {
-    LocationMap(
-        preciseLocation = LatLng(
-            preciseLatitude.toDouble(),
-            preciseLongitude.toDouble()
-        )
-    )
-    Spacer(modifier = Modifier.height(40.dp))
-    InfoCard(
-        title = stringResource(R.string.responders_latitude),
-        body = preciseLatitude
-    )
-    Spacer(modifier = Modifier.height(10.dp))
-    InfoCard(
-        title = stringResource(R.string.responders_longitude),
-        body = preciseLongitude
-    )
 }

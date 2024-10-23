@@ -96,6 +96,8 @@ dependencies {
     implementation(libs.androidx.uwb)
     // JSON Serialization
     implementation(libs.kotlinx.serialization.json)
+    // Getting device window size
+    implementation(libs.androidx.adaptive.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -12,9 +12,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.PI
-import kotlin.math.abs
-import kotlin.math.cos
 import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
@@ -65,21 +62,16 @@ class ResponderViewModel @Inject constructor(
     fun getPreciseLocation(
         distance: Float,
         azimuth: Float,
-        elevation: Float,
         anchorLatitude: Double,
         anchorLongitude: Double,
         anchorCompassBearing: Int
     ): List<String> {
         val anchorLocation = LatLng(anchorLatitude, anchorLongitude)
-        /*
-         * Trigonometry to find horizontal distance and heading (assuming negative azimuth
-         * is right of device and positive azimuth left of it)
-         */
-        val horizontalDistance = cos(abs(elevation) * (PI/180)) * distance
+        // Find heading (assuming negative azimuth is right of device and positive azimuth left of it)
         val heading = (180.0 + azimuth + anchorCompassBearing) % 360
         val preciseLocation = SphericalUtil.computeOffset(
             anchorLocation,
-            horizontalDistance,
+            distance.toDouble(),
             heading
         )
         val formattedPreciseLatitude = formatDecimalNumber(
@@ -102,14 +94,15 @@ class ResponderViewModel @Inject constructor(
     * - sets the return value to minValue if decimalNumber < minValue
     * - sets the return value to maxValue if value > decimalNumber
     *
-    * Note: the last two points are relevant for the azimuth. Even though Google claims the
+    * Note: the last two parameters are especially relevant for the azimuth. Even though Google claims the
     * azimuth is in the range [-90,90], the responder sometimes receives values outside of that range.
+    * It is also relevant when no min or max value is given, e.g., when formatting the distance.
     */
     fun formatDecimalNumber(
         decimalNumber: Double,
         numberOfDecimalPlaces: Int,
-        minValue: Double = Double.MIN_VALUE,
-        maxValue: Double = Double.MAX_VALUE
+        minValue: Double = Double.NEGATIVE_INFINITY,
+        maxValue: Double = Double.POSITIVE_INFINITY
     ): String {
         if (numberOfDecimalPlaces < 1 || minValue > maxValue) {
             return ""

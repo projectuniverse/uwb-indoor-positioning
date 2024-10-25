@@ -115,10 +115,13 @@ fun ResponderScreen(
                         modifier = Modifier.fillMaxSize()
                     )
                 } else {
+                    /*
+                     * No need to format anchorLatitude, anchorLongitude, or anchorCompassBearing,
+                     * because it is already formatted on anchor's side
+                     */
                     val preciseLocation = viewModel.getPreciseLocation(
                         distance = formattedDistance.toFloat(),
                         azimuth = formattedAzimuth.toFloat(),
-                        elevation = formattedElevation.toFloat(),
                         anchorLatitude = anchorLatitude!!,
                         anchorLongitude = anchorLongitude!!,
                         anchorCompassBearing = anchorCompassBearing!!

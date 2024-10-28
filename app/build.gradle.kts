@@ -11,11 +11,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.uwbindoorpositioning"
+    namespace = "io.github.projectuniverse.uwbindoorpositioning"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.uwbindoorpositioning"
+        applicationId = "io.github.projectuniverse.uwbindoorpositioning"
         minSdk = 31
         targetSdk = 35
         versionCode = 1

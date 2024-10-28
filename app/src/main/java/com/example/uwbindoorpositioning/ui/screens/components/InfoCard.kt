@@ -13,7 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 
-// Composable that is used by multiple screens and was moved to components due to that
+/*
+ * Composable that is used by multiple screens. It is used to display position data, such as
+ * latitude, longitude and compass bearing.
+ */
 @Composable
 fun InfoCard(
     title: String,

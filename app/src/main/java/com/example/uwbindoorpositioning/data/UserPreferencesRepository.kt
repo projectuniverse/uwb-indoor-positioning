@@ -13,14 +13,12 @@ import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
 
-
 // An enum class that represents the different app them modes
 enum class AppTheme(@StringRes val title: Int) {
     MODE_DAY(title = R.string.light_mode),
     MODE_NIGHT(title = R.string.dark_mode),
     MODE_AUTO(title = R.string.auto_mode);
 }
-
 
 // A data class to store the user preference data
 data class UserPreferences(
@@ -62,7 +60,7 @@ class DefaultUserPreferencesRepository @Inject constructor(
             UserPreferences(appTheme)
         }
 
-    // A suspend function that updates the appTheme property of UserPreferences
+    // A function that updates the appTheme property of UserPreferences
     override suspend fun setAppTheme(appTheme: AppTheme) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.APP_THEME] = appTheme.name

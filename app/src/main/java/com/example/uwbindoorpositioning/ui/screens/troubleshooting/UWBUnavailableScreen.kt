@@ -23,6 +23,7 @@ import com.example.uwbindoorpositioning.R
 import com.example.uwbindoorpositioning.ui.theme.dimensions
 import com.example.uwbindoorpositioning.ui.theme.spacing
 
+// This screen is shown when the device has UWB turned off or airplane mode turned on
 @Composable
 fun UWBUnavailableScreen(
     viewModel: UWBUnavailableViewModel,

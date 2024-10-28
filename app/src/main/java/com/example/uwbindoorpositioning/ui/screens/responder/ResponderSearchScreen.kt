@@ -18,6 +18,7 @@ import com.example.uwbindoorpositioning.ui.screens.components.ConnectionAnimatio
 import com.example.uwbindoorpositioning.ui.theme.dimensions
 import com.example.uwbindoorpositioning.ui.theme.spacing
 
+// This screen is shown when the responder has not found an anchor to start ranging with
 @Composable
 fun ResponderSearchScreen(
     viewModel: ResponderViewModel,

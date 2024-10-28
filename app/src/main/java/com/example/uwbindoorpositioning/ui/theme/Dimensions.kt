@@ -8,7 +8,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 // This file uses 8 dp increments due to the 8 dp grid system.
-
 data class Dimensions(
     val errorIconSize: Dp = 120.dp,
     val arrowIconSize: Dp = 280.dp,

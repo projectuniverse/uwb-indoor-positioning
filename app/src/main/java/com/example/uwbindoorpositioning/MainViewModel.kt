@@ -79,6 +79,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    // Checks if the device has hardware support for UWB
     private fun isDeviceUWBCapable(): Boolean {
         return context.packageManager.hasSystemFeature("android.hardware.uwb")
     }

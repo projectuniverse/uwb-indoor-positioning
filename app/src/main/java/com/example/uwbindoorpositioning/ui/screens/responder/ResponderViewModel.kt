@@ -36,6 +36,13 @@ class ResponderViewModel @Inject constructor(
         }
     }
 
+    /*
+     * This functions initializes a UWB session by getting the relevant responder UWB session data.
+     * It then starts searching for nearby devices and starts ranging if an anchor is found.
+     * When ranging has started, the function will not start searching for other anchors until
+     * the UWB connection is lost. This ensures that the responder is only connected to one anchor
+     * at a time.
+     */
     private fun startDiscovery() {
         viewModelScope.launch {
             var responderUWBSessionData = responderConnectionManager.initializeUWBSession()
@@ -59,6 +66,7 @@ class ResponderViewModel @Inject constructor(
         }
     }
 
+    // This function calculates the responder's precise location relative to the anchor
     fun getPreciseLocation(
         distance: Float,
         azimuth: Float,

@@ -112,7 +112,7 @@ class AnchorNearbyConnector @Inject constructor(
         override fun onDisconnected(endpointId: String) {
             if (!wasNearbyConnectionStoppedIntentionally &&
                 currentConnectingResponderEndpointId == endpointId) {
-                //  new advertising has already started
+                // New advertising has already started
                 startAdvertising(
                     anchorNearbyPayload = anchorNearbyPayload!!,
                     onNearbyConnectionEstablished = onNearbyConnectionEstablished
@@ -157,7 +157,7 @@ class AnchorNearbyConnector @Inject constructor(
     /*
      * Ends all established connections with nearby devices and the search for nearby devices.
      *
-     * Note: stopDiscovery and stopAllEndpoints might take some time, so all code afterward could
+     * Note: stopDiscovery and stopAllEndpoints might take some time, so all code afterwards could
      * happen before onDisconnected callback is triggered by stopAdvertising and stopAllEndpoints.
      */
     fun endAllNearbyConnections() {

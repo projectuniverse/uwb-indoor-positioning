@@ -22,6 +22,10 @@ import com.example.uwbindoorpositioning.ui.screens.components.InfoCard
 import com.example.uwbindoorpositioning.ui.theme.dimensions
 import com.example.uwbindoorpositioning.ui.theme.spacing
 
+/*
+ * This screen shows an arrow that points towards the anchor's location. The screen also displays
+ * the distance, azimuth and elevation to the anchor.
+ */
 @Composable
 fun RangingTab(
     isDark: Boolean,

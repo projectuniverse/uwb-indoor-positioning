@@ -9,6 +9,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import com.example.uwbindoorpositioning.R
 
+// Used in AnchorCoordinatesScreen to input latitude, longitude and compass bearing
 @Composable
 fun InputPositionField(
     value: String,

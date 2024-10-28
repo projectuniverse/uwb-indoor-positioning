@@ -16,6 +16,7 @@ class ResponderConnectionManager @Inject constructor(
     val anchorLongitudeState = responderNearbyConnector.anchorLongitudeState
     val anchorCompassBearingState = responderNearbyConnector.anchorCompassBearingState
 
+    // Initializes UWB session and gets ResponderUWBSessionData needed to start ranging
     suspend fun initializeUWBSession(): ResponderUWBSessionData? {
         return responderUWBConnector.initializeUWBSession()
     }

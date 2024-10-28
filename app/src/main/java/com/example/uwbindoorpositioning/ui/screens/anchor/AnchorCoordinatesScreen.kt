@@ -21,6 +21,7 @@ import com.example.uwbindoorpositioning.R
 import com.example.uwbindoorpositioning.ui.theme.dimensions
 import com.example.uwbindoorpositioning.ui.theme.spacing
 
+// This screen lets the user input the anchor's latitude, longitude, and compass bearing
 @Composable
 fun AnchorCoordinatesScreen(
     onStartButtonClicked: (anchorLatitude: String, anchorLongitude: String, anchorCompassBearing: String) -> Unit,

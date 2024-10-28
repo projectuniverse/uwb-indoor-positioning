@@ -20,6 +20,7 @@ import com.example.uwbindoorpositioning.R
 import com.example.uwbindoorpositioning.ui.theme.dimensions
 import com.example.uwbindoorpositioning.ui.theme.spacing
 
+// This screen lets the user choose whether the device is used as a responder or anchor
 @Composable
 fun StartScreen(
     onUWBResponderButtonClicked: () -> Unit,

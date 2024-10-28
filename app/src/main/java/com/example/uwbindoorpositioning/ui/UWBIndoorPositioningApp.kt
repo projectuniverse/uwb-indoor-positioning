@@ -150,10 +150,9 @@ fun UWBIndoorPositioningApp(
         modifier = modifier
     ) { innerPadding -> // Prevents the top app bar from covering content
         /*
-         * Ensures that all composables using rootModifier fill their max size and have padding,
-         * regardless of their own size calls. Accepting a modifier follows best practices, see:
-         * https://chrisbanes.me/posts/always-provide-a-modifier/ and
-         * https://android.googlesource.com/platform/frameworks/support/+/androidx-main/compose/docs/compose-api-guidelines.md#elements-accept-and-respect-a-modifier-parameter
+         * Ensures that all screens using rootModifier fill their max size and have padding,
+         * regardless of their own size calls. Accepting a modifier and having the the parent
+         * composable tell the child composable how to measure follows best practices.
          */
         val rootModifier = Modifier
             .fillMaxSize()
@@ -165,6 +164,7 @@ fun UWBIndoorPositioningApp(
                 end = MaterialTheme.padding.horizontalPadding
             )
 
+        // Show screens in a very specific order that ensures the app functions properly
         if (!isDeviceUWBCapable) {
             UWBErrorScreen(
                 errorMessage = stringResource(R.string.no_uwb_support),

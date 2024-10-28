@@ -23,6 +23,7 @@ import com.example.uwbindoorpositioning.R
 import com.example.uwbindoorpositioning.ui.theme.dimensions
 import com.example.uwbindoorpositioning.ui.theme.spacing
 
+// This screen is shown when the user has not granted the app all required permissions
 @Composable
 fun PermissionsNotGrantedScreen(
     viewModel: PermissionsNotGrantedViewModel,

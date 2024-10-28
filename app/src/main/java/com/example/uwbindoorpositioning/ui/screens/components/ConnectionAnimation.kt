@@ -10,7 +10,10 @@ import androidx.core.content.ContextCompat
 import com.example.uwbindoorpositioning.R
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 
-// Composable that is used by multiple screens and was moved to components due to that
+/*
+ * Composable that is used by multiple screens. It displays an animation that shows a
+ * moving radio wave icon.
+ */
 @Composable
 fun ConnectionAnimation(
     context: Context,

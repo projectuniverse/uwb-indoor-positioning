@@ -58,6 +58,7 @@ class AnchorUWBConnector @Inject constructor(
         }
     }
 
+    // Starts a new ranging session with the given responder
     fun startRanging(
         responderNearbyPayload: ResponderNearbyPayload
     ) {
@@ -94,11 +95,11 @@ class AnchorUWBConnector @Inject constructor(
     }
 
     /*
-    * Ends all established connections with uwb devices for cleanup.
-    * This need to be called, because the viewmodel scope is different
-    * from this coroutine scope, so destroying the viewmodel would not
-    * destroy these coroutines and ranging would continue.
-    */
+     * Ends all established connections with uwb devices for cleanup.
+     * This needs to be called, because the viewmodel scope is different
+     * from this coroutine scope, so destroying the viewmodel would not
+     * destroy these coroutines and ranging would continue.
+     */
     fun endAllUWBConnections() {
         jobs.forEach { entry ->
             entry.cancel()

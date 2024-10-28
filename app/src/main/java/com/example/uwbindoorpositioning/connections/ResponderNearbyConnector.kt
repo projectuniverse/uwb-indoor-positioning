@@ -126,7 +126,7 @@ class ResponderNearbyConnector @Inject constructor(
         override fun onDisconnected(endpointId: String) {
             if (!wasNearbyConnectionStoppedIntentionally &&
                 currentConnectingAnchorEndpointId == endpointId) {
-                //  new advertising has already started
+                // New advertising has already started
                 startDiscovery(
                     responderUWBSessionData = responderUWBSessionData!!,
                     onNearbyConnectionEstablished = onNearbyConnectionEstablished

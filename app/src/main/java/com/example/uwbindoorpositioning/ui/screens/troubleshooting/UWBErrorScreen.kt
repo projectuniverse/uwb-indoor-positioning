@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import com.example.uwbindoorpositioning.ui.theme.dimensions
 import com.example.uwbindoorpositioning.ui.theme.spacing
 
+// This screen is shown if the device does not support UWB or UWB ranging
 @Composable
 fun UWBErrorScreen(
     errorMessage: String,

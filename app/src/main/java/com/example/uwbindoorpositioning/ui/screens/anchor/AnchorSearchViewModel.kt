@@ -23,7 +23,7 @@ class AnchorSearchViewModel @AssistedInject constructor(
     private val anchorConnectionManager: AnchorConnectionManager,
     @ApplicationContext val context: Context
 ) : ViewModel() {
-    // Needed to pass manual arguments to ViewModel
+    // Needed in order to pass manual arguments to ViewModel
     @AssistedFactory interface Factory {
         fun create(
             @Assisted("anchorLatitude") anchorLatitude: String,
@@ -39,6 +39,12 @@ class AnchorSearchViewModel @AssistedInject constructor(
         }
     }
 
+    /*
+     * This functions initializes a UWB session by getting the relevant anchor UWB session data.
+     * It then starts searching for nearby devices and starts ranging if a responder is found.
+     * When ranging has started, the function calls itself in order to start searching
+     * for other responders and establish multiple UWB sessions.
+     */
     private fun startAdvertising() {
         viewModelScope.launch {
             var anchorUWBSessionData = anchorConnectionManager.initializeUWBSession()

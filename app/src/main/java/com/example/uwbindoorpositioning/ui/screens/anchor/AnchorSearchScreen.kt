@@ -21,6 +21,7 @@ import com.example.uwbindoorpositioning.ui.screens.components.InfoCard
 import com.example.uwbindoorpositioning.ui.theme.dimensions
 import com.example.uwbindoorpositioning.ui.theme.spacing
 
+// This screen is shown when the anchor is actively searching for responders
 @Composable
 fun AnchorSearchScreen(
     viewModel: AnchorSearchViewModel,

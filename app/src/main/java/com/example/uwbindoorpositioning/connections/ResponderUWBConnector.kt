@@ -60,6 +60,7 @@ class ResponderUWBConnector @Inject constructor(
         }
     }
 
+    // Starts a new ranging session with the given anchor
     fun startRanging(
         anchorUWBSessionData: AnchorUWBSessionData,
         onUWBConnectionLost: () -> Unit

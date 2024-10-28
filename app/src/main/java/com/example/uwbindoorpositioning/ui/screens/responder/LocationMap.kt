@@ -13,6 +13,7 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
+// Map that shows the responder's current GPS and precise location
 @Composable
 fun LocationMap(
     preciseLocation: LatLng,

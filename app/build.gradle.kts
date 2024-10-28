@@ -113,12 +113,7 @@ kapt {
 }
 
 secrets {
-    // Optionally specify a different file name containing your secrets.
-    // The plugin defaults to "local.properties"
     propertiesFileName = "secrets.properties"
-
-    // A properties file containing default secret values. This file can be
-    // checked in version control.
     defaultPropertiesFileName = "local.defaults.properties"
 }
 

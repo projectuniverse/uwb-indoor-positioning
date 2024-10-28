@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.uwbindoorpositioning.R
 
+// This screen allows the user to swipe between the RangingTab and the LocationTab
 @Composable
 fun ResponderScreen(
     isDark: Boolean,

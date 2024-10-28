@@ -7,11 +7,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/*
- * This file uses 8 dp increments due to the 8 dp grid system.
- * 
- */
-
+// This file uses 8 dp increments due to the 8 dp grid system.
 data class Spacing(
     val topAppBarSmallSpacerSize: Dp = 8.dp,
     val smallSpacerSize: Dp,

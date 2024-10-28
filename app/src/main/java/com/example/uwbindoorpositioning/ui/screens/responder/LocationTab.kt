@@ -19,6 +19,7 @@ import com.example.uwbindoorpositioning.ui.theme.dimensions
 import com.example.uwbindoorpositioning.ui.theme.spacing
 import com.google.android.gms.maps.model.LatLng
 
+// This screen shows the responder's location on a map, as well as its precise latitude and longitude
 @Composable
 fun LocationTab(
     preciseLatitude: String,

@@ -13,10 +13,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dagger.hilt.android.AndroidEntryPoint
 import io.github.projectuniverse.uwbindoorpositioning.data.AppTheme
 import io.github.projectuniverse.uwbindoorpositioning.ui.UWBIndoorPositioningApp
 import io.github.projectuniverse.uwbindoorpositioning.ui.theme.UWBIndoorPositioningTheme
-import dagger.hilt.android.AndroidEntryPoint
 
 /*
  * @AndroidEntryPoint makes Hilt create a dependencies container which is
@@ -35,6 +35,8 @@ class MainActivity : ComponentActivity() {
                 viewModel.userPreferencesFlow.collectAsStateWithLifecycle(initialValue = null)
             val isDeviceUWBCapableState =
                 viewModel.isDeviceUWBCapableState.collectAsStateWithLifecycle()
+            val isLocationOnState =
+                viewModel.isLocationTurnedOnState.collectAsStateWithLifecycle()
             val arePermissionsGrantedState =
                 viewModel.arePermissionsGrantedState.collectAsStateWithLifecycle()
             val doesDeviceSupportUWBRangingState =
@@ -44,6 +46,7 @@ class MainActivity : ComponentActivity() {
             // State variables
             val userPreferences = userPreferencesState.value
             val isDeviceUWBCapable = isDeviceUWBCapableState.value
+            val isLocationTurnedOn = isLocationOnState.value
             val arePermissionsGranted = arePermissionsGrantedState.value
             val doesDeviceSupportUWBRanging = doesDeviceSupportUWBRangingState.value
             val isUWBAvailable = isUWBAvailableState.value
@@ -57,34 +60,42 @@ class MainActivity : ComponentActivity() {
                 }
 
                 UWBIndoorPositioningTheme(darkTheme = isDark) {
-                    val multiplePermissionResultLauncher = rememberLauncherForActivityResult(
-                        contract = ActivityResultContracts.RequestMultiplePermissions(),
-                        onResult = {
-                            viewModel.permissionsToRequest.forEach { _ ->
-                                viewModel.onPermissionResult()
-                            }
-                        }
-                    )
-                    val lifecycleOwner = LocalLifecycleOwner.current
-
-                    DisposableEffect(
-                        key1 = lifecycleOwner,
-                        effect = {
-                            val observer = LifecycleEventObserver { _, event ->
-                                // Only request (again) if permissions are not granted and device is UWB capable
-                                if (event == Lifecycle.Event.ON_START && !arePermissionsGranted && isDeviceUWBCapable) {
-                                    multiplePermissionResultLauncher.launch(viewModel.permissionsToRequest)
+                    /*
+                     * Only request permissions (again) if the device is UWB-capable, the required
+                     * permissions are not granted and the location is turned on. The latter is important,
+                     * because Android might say that location permissions are not granted if the user
+                     * turned off their location, even if the location permissions are granted.
+                     */
+                    if (isDeviceUWBCapable && !arePermissionsGranted && isLocationTurnedOn) {
+                        val multiplePermissionResultLauncher = rememberLauncherForActivityResult(
+                            contract = ActivityResultContracts.RequestMultiplePermissions(),
+                            onResult = {
+                                viewModel.permissionsToRequest.forEach { _ ->
+                                    viewModel.onPermissionResult()
                                 }
                             }
-                            lifecycleOwner.lifecycle.addObserver(observer)
-                            onDispose {
-                                lifecycleOwner.lifecycle.removeObserver(observer)
+                        )
+                        val lifecycleOwner = LocalLifecycleOwner.current
+
+                        DisposableEffect(
+                            key1 = lifecycleOwner,
+                            effect = {
+                                val observer = LifecycleEventObserver { _, event ->
+                                    if (event == Lifecycle.Event.ON_START) {
+                                        multiplePermissionResultLauncher.launch(viewModel.permissionsToRequest)
+                                    }
+                                }
+                                lifecycleOwner.lifecycle.addObserver(observer)
+                                onDispose {
+                                    lifecycleOwner.lifecycle.removeObserver(observer)
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
 
                     UWBIndoorPositioningApp(
                         isDeviceUWBCapable = isDeviceUWBCapable,
+                        isLocationTurnedOn = isLocationTurnedOn,
                         arePermissionsGranted = arePermissionsGranted,
                         doesDeviceSupportUWBRanging = doesDeviceSupportUWBRanging,
                         isUWBAvailable = isUWBAvailable,

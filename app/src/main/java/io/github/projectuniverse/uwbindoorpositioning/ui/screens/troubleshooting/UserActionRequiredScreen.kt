@@ -23,10 +23,18 @@ import io.github.projectuniverse.uwbindoorpositioning.R
 import io.github.projectuniverse.uwbindoorpositioning.ui.theme.dimensions
 import io.github.projectuniverse.uwbindoorpositioning.ui.theme.spacing
 
+// An enum class that represents the different required actions
+enum class RequiredUserAction() {
+    ACTION_GRANT_PERMISSIONS,
+    ACTION_ENABLE_UWB,
+    ACTION_TURN_ON_LOCATION;
+}
+
 // This screen is shown when the user has not granted the app all required permissions
 @Composable
-fun PermissionsNotGrantedScreen(
-    viewModel: PermissionsNotGrantedViewModel,
+fun UserActionRequiredScreen(
+    requiredUserAction: RequiredUserAction,
+    viewModel: UserActionRequiredViewModel,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -34,6 +42,22 @@ fun PermissionsNotGrantedScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.verticalScroll(rememberScrollState())
     ) {
+        val text: String
+        val onClick: () -> Unit
+        when (requiredUserAction) {
+            RequiredUserAction.ACTION_GRANT_PERMISSIONS -> {
+                text = stringResource(R.string.permissions_not_granted)
+                onClick = { viewModel.openAppSettings() }
+            }
+            RequiredUserAction.ACTION_ENABLE_UWB -> {
+                text = stringResource(R.string.uwb_unavailable)
+                onClick = { viewModel.openSettings() }
+            }
+            RequiredUserAction.ACTION_TURN_ON_LOCATION -> {
+                text = stringResource(R.string.location_turned_off)
+                onClick = { viewModel.openLocationSettings() }
+            }
+        }
         Icon(
             imageVector = Icons.Rounded.ErrorOutline,
             contentDescription = null,
@@ -41,13 +65,13 @@ fun PermissionsNotGrantedScreen(
         )
         Spacer(modifier = Modifier.size(MaterialTheme.spacing.largeSpacerSize))
         Text(
-            text = stringResource(R.string.permissions_not_granted),
+            text = text,
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.size(MaterialTheme.spacing.largeSpacerSize))
         Button(
-            onClick = { viewModel.openAppSettings() },
+            onClick = onClick,
             modifier = Modifier
                 .fillMaxWidth(MaterialTheme.dimensions.regularButtonWidthPercentage)
                 .height(MaterialTheme.dimensions.regularButtonHeight)

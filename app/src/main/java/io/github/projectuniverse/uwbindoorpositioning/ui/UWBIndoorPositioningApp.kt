@@ -38,11 +38,10 @@ import io.github.projectuniverse.uwbindoorpositioning.ui.screens.anchor.AnchorSe
 import io.github.projectuniverse.uwbindoorpositioning.ui.screens.responder.ResponderScreen
 import io.github.projectuniverse.uwbindoorpositioning.ui.screens.responder.ResponderViewModel
 import io.github.projectuniverse.uwbindoorpositioning.ui.screens.start.StartScreen
-import io.github.projectuniverse.uwbindoorpositioning.ui.screens.troubleshooting.PermissionsNotGrantedScreen
-import io.github.projectuniverse.uwbindoorpositioning.ui.screens.troubleshooting.PermissionsNotGrantedViewModel
+import io.github.projectuniverse.uwbindoorpositioning.ui.screens.troubleshooting.RequiredUserAction
 import io.github.projectuniverse.uwbindoorpositioning.ui.screens.troubleshooting.UWBErrorScreen
-import io.github.projectuniverse.uwbindoorpositioning.ui.screens.troubleshooting.UWBUnavailableScreen
-import io.github.projectuniverse.uwbindoorpositioning.ui.screens.troubleshooting.UWBUnavailableViewModel
+import io.github.projectuniverse.uwbindoorpositioning.ui.screens.troubleshooting.UserActionRequiredScreen
+import io.github.projectuniverse.uwbindoorpositioning.ui.screens.troubleshooting.UserActionRequiredViewModel
 import io.github.projectuniverse.uwbindoorpositioning.ui.theme.padding
 import io.github.projectuniverse.uwbindoorpositioning.ui.theme.spacing
 import kotlinx.serialization.Serializable
@@ -107,6 +106,7 @@ fun AppBar(
 @Composable
 fun UWBIndoorPositioningApp(
     isDeviceUWBCapable: Boolean,
+    isLocationTurnedOn: Boolean,
     arePermissionsGranted: Boolean,
     doesDeviceSupportUWBRanging: Boolean?,
     isUWBAvailable: Boolean?,
@@ -171,23 +171,18 @@ fun UWBIndoorPositioningApp(
                 modifier = rootModifier
             )
         }
-        else if (!arePermissionsGranted) {
-            if (hasNavGraphBeenBuilt(navController)) {
-                navController.popBackStack(StartScreen, false)
-            }
-            val viewModel = hiltViewModel<PermissionsNotGrantedViewModel>()
-            PermissionsNotGrantedScreen(
-                viewModel = viewModel,
-                modifier = rootModifier
-            )
-        }
+        /*
+         * Needs to be shown before showing the screen that informs the user that their device does
+         * not support UWB ranging. This is because we can only detect this if UWB is available.
+         */
         else if (isUWBAvailable == null || !isUWBAvailable) {
             if (isUWBAvailable != null) {
                 if (hasNavGraphBeenBuilt(navController)) {
                     navController.popBackStack(StartScreen, false)
                 }
-                val viewModel = hiltViewModel<UWBUnavailableViewModel>()
-                UWBUnavailableScreen(
+                val viewModel = hiltViewModel<UserActionRequiredViewModel>()
+                UserActionRequiredScreen(
+                    requiredUserAction = RequiredUserAction.ACTION_ENABLE_UWB,
                     viewModel = viewModel,
                     modifier = rootModifier
                 )
@@ -200,6 +195,33 @@ fun UWBIndoorPositioningApp(
                     modifier = rootModifier
                 )
             }
+        }
+        /*
+         * Needs to be shown before showing the screen that informs the user of missing permissions.
+         * This is because Android might say that location permissions are not granted if the user
+         * turned off their location, even if the location permissions are granted.
+         */
+        else if (!isLocationTurnedOn) {
+            if (hasNavGraphBeenBuilt(navController)) {
+                navController.popBackStack(StartScreen, false)
+            }
+            val viewModel = hiltViewModel<UserActionRequiredViewModel>()
+            UserActionRequiredScreen(
+                requiredUserAction = RequiredUserAction.ACTION_TURN_ON_LOCATION,
+                viewModel = viewModel,
+                modifier = rootModifier
+            )
+        }
+        else if (!arePermissionsGranted) {
+            if (hasNavGraphBeenBuilt(navController)) {
+                navController.popBackStack(StartScreen, false)
+            }
+            val viewModel = hiltViewModel<UserActionRequiredViewModel>()
+            UserActionRequiredScreen(
+                requiredUserAction = RequiredUserAction.ACTION_GRANT_PERMISSIONS,
+                viewModel = viewModel,
+                modifier = rootModifier
+            )
         }
         else {
             NavHost(
